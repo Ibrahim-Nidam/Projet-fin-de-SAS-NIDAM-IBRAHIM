@@ -104,10 +104,8 @@ int UserCheck (char utilisateur[20], char password_Utilisateur[20]){
 
     for (int i = 0; i < user_Conteur ; i++){
         if(strcmp(users[i].name_User, utilisateur) == 0 && strcmp(users[i].password_User,password_Utilisateur) == 0){
-                // printf("Vous êtes connecté.\n");
                 return 1;
             }else if(strcmp(users[i].name_User, utilisateur) != 0 || strcmp(users[i].password_User,password_Utilisateur) != 0){
-                // printf("le  nom d'utilisateur ou le mot de passe est incorrect.\n");
                 return 0;
             }
 
@@ -118,8 +116,8 @@ int UserCheck (char utilisateur[20], char password_Utilisateur[20]){
 void MenuSignIn() {
     char utilisateur[20];
     char password_Utilisateur[20];
-    int isUser = 0; // Tracks if a valid user logs in
-    int utilisateur_trouver = 0; // Tracks if the user is found in the system
+    int isUser = 0; 
+    int utilisateur_trouver = 0; 
 
     while (isUser == 0) {
         printf("Entrez votre nom du compte : ");
@@ -136,21 +134,18 @@ void MenuSignIn() {
 
         if (utilisateur_trouver == 0) {
             printf("Le nom d'utilisateur est incorrect.\n");
-            continue; // Go back to asking for the username
+            continue; 
         }
 
-        // Ask for the password
         printf("Entrez votre Mode de Passe : ");
         scanf("%s", password_Utilisateur);
 
-        // Check if password is valid for the user
         if (UserCheck(utilisateur, password_Utilisateur)) {
-            // Check if the user is admin
             if (strcmp(password_Utilisateur, Admin.password_User) == 0 && strcmp(utilisateur, Admin.name_User) == 0) {
                 isAdmin = 1;
                 printf("Bienvenue, Administrateur %s.\n", Admin.name_User);
             } else {
-                isAdmin = 0; // Regular user
+                isAdmin = 0; 
             }
             isUser = 1; 
         } else {
@@ -159,13 +154,12 @@ void MenuSignIn() {
 
             if (password_Incorrect_Conteur == 3) {
                 printf("Vous avez atteint le nombre maximum de tentatives. Veuillez attendre 30 secondes.\n");
-                sleep(5); // For testing purposes, use 5 seconds instead of 30 minutes
-                password_Incorrect_Conteur = 0; // Reset the incorrect attempt counter
+                sleep(5); 
+                password_Incorrect_Conteur = 0; 
             }
         }
     }
 
-    // Mark that a user has signed in
     isSignedIn = 1;
 }
 
