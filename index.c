@@ -40,13 +40,6 @@ int isAgent = 0;
 
 
 
-
-
-
-
-
-
-
 int checkPassword(char utilisateur[20], char password_Utilisateur[20]) {
     int isUpper = 0;
     int isLower = 0;
@@ -120,6 +113,8 @@ void MenuSignIn() {
     int isUser = 0; 
     int utilisateur_trouver = 0; 
 
+    printf("========== Sign In ==========\n");
+
     while (isUser == 0) {
         printf("Entrez votre nom du compte : ");
         scanf("%s", utilisateur);
@@ -187,6 +182,9 @@ void MenuSignUp() {
     char password_Utilisateur[20];
     int i = 0;
 
+    printf("========== Sign Up ==========\n");
+
+
     while (1) { 
         printf("Entrez votre nom du compte : ");
         scanf(" %s", utilisateur);
@@ -208,24 +206,192 @@ void MenuSignUp() {
    
     strcpy(nouvelle_Utilisateur.name_User, utilisateur);
     strcpy(nouvelle_Utilisateur.password_User, password_Utilisateur);
+    strcpy(nouvelle_Utilisateur.role,"Client");
     users[user_Conteur++] = nouvelle_Utilisateur;
 
     printf("Inscription réussie pour %s.\n", utilisateur);
-     for (int i = 0; i < user_Conteur; i++) {
-        printf("Utilisateur %d: Nom: %s, Mot de Passe: %s\n", 
-               i + 1, users[i].name_User, users[i].password_User);
-    }
+}
+
+void GestionUtilisateurs(){
+    char nom_utilisateur[30];
+    int delete_Another = 1;
+    int found = 0;  
+
+    do {
+
+        getchar();
+        printf("Les Utilisateurs sont : \n");
+        for (int i = 0; i < user_Conteur; i++) {
+            printf("Utilisateur %d: Nom: %s, Role: %s\n", i + 1, users[i].name_User, users[i].role);
+        }
+        printf("\n");
+
+        printf("Entrez le nom d'utilisateur a Supprimer : ");
+        fgets(nom_utilisateur, 30,stdin);
+
+        nom_utilisateur[strcspn(nom_utilisateur, "\n")] = 0;
+
+        if(strcmp(nom_utilisateur,"admin") == 0){
+            printf("Vous ne pouvez pas supprimer l'administrateur.\n");
+        }else{
+            for (int i = 0; i < user_Conteur; i++) {
+                if (strcmp(users[i].name_User, nom_utilisateur) == 0) {
+                    found = 1;  
+
+                    for (int j = i; j < user_Conteur - 1; j++) {
+                        strcpy(users[j].name_User, users[j + 1].name_User);
+                        strcpy(users[j].password_User, users[j + 1].password_User);
+                        strcpy(users[j].role, users[j + 1].role);
+                    }
+                    user_Conteur--;  
+                    printf("Utilisateur %s supprimé.\n\n", nom_utilisateur);
+                    break;  
+                }
+            }
+
+            if (!found) {
+                printf("L'utilisateur n'existe pas ou le nom est incorrect.\n\n");
+            }
+        }
+
+        printf("Nouvelle liste des utilisateurs : \n");
+        for (int i = 0; i < user_Conteur; i++) {
+            printf("Utilisateur %d: Nom: %s, Role: %s\n", i + 1, users[i].name_User, users[i].role);
+        }
+        
+        printf("\n");
+      
+        printf("Voulez -vous supprimer un autre utilisateur ? (1 pour OUI, 0 pour NON) : ");
+        scanf("%d", &delete_Another);
+
+        printf("\n\n");
+
+    }while(delete_Another == 1);
+    
+
+}
+
+void GestionReclamations(){
+
+}
+
+void AttribuerRoles(){
+
+}
+
+void GenerationStatistiques(){
+
+}
+
+void TraiterReclamation(){
+
+}
+
+void AjouterReclamation(){
+
+}
+
+void ConsulterReclamation(){
+
+}
+
+void OrdreParPriorite(){
+
 }
 
 void MenuAdministrateur(){
+    int choix_Menu_Administrateur = 0;
+    
+    printf("Bienvenue dans votre espace Administrateur.\n");
 
+    do{
+        printf("1 - Gestion des  utilisateurs.\t 2 - Gestion des Reclamations.\n");
+        printf("3 - Attribue les roles.\t 4 - Traiter les reclamations.\n");
+        printf("5 - Generation des Statistiques. \t 6 - Afficher les réclamations ordonnées par priorite\n");
+        printf("7 - Quittez\n");
+        printf("Quelle est votre choix : ");
+        scanf(" %d",&choix_Menu_Administrateur);
+        printf("\n");
+
+        if(choix_Menu_Administrateur  < 1 || choix_Menu_Administrateur > 7 ){
+            printf("Veuillez choisir un choix valide entre 1 - 7.\n");
+            continue;
+        }
+
+        switch (choix_Menu_Administrateur) {
+            case 1:
+                GestionUtilisateurs();
+                break;
+            case 2:
+                GestionReclamations();
+                break;
+            case 3:
+                AttribuerRoles();
+                break;
+            case 4:
+                TraiterReclamation();
+                break;
+            case 5:
+                GenerationStatistiques();
+                break;
+            case 6:
+                OrdreParPriorite();
+                break;
+            case 7:
+                printf("Au revoir.\n");
+                break;
+        }
+
+    }while (choix_Menu_Administrateur != 7);
 }
 
+
 void MenuAgent(){
+    int choix_Menu_Agent = 0;
+
+    printf("Bienvenue dans votre espace Agent");
+
+    do{
+        printf("=========== Menu ===========\n");
+        printf("1 - Gerer les reclamations \t 2 - Traiter les reclamations \t 3 - Quittez \n");
+        printf("Quelle est votre choix : ");
+        scanf(" %d",&choix_Menu_Agent);
+        if(choix_Menu_Agent  < 1 || choix_Menu_Agent > 3 ){
+            printf("Veuillez choisir un choix valide entre 1 - 3.\n");
+        }
+    }while (choix_Menu_Agent  < 1 || choix_Menu_Agent > 3);
+
+    if(choix_Menu_Agent == 1){
+        GestionReclamations();
+    }else if(choix_Menu_Agent == 2){
+        TraiterReclamation();
+    }
 
 }
 
 void  MenuUtilisateur() {
+    int choix_Menu_utilisateur;
+    printf("Bienvenue dans votre espace utilisateur!\n");
+    do{
+
+        printf("=========== Menu ===========\n");
+        printf("1 - Ajouter une reclamation \t 2 - Consulter tes reclamations \t 3 - Quittez \n");
+        printf("Quelle est votre choix : ");
+        scanf(" %d",&choix_Menu_utilisateur);
+        if(choix_Menu_utilisateur  < 1 || choix_Menu_utilisateur > 3 ){
+            printf("Veuillez choisir un choix valide entre 1 -3.\n");
+        }
+    }while (choix_Menu_utilisateur  < 1 || choix_Menu_utilisateur > 3);
+
+
+    if(choix_Menu_utilisateur == 1){
+        AjouterReclamation();
+    }else if (choix_Menu_utilisateur == 2){
+        ConsulterReclamation();
+    }else{
+        printf("Au revoir!\n\n");
+        
+    }
 
 }
 
@@ -233,13 +399,13 @@ void  MenuUtilisateur() {
 void  Role_Menu(){
 
     if (isAdmin){
-        printf("Bienvenue dans le menu Administrateur.\n");
+        // printf("Bienvenue dans le menu Administrateur.\n");
         MenuAdministrateur();
     }else if (isAgent) {
-        printf("Bienvenue dans le menu Agent .\n");
+        // printf("Bienvenue dans le menu Agent .\n");
         MenuAgent();
     }else {
-        printf("Bienvenue dans le menu Utilisateur.\n");
+        // printf("Bienvenue dans le menu Utilisateur.\n");
         MenuUtilisateur();
     }
 }
@@ -259,8 +425,8 @@ void MenuPrincipal(){
             printf("1 - Sign In\t 2 - Sign Up\n");
         }
         if(isSignedIn){
-            printf("3 - Acceder au Menu en fonction de votre role.\n");
-            printf("4 - Log Out.\n\n");
+            printf("1 - Acceder au Menu en fonction de votre role.\n");
+            printf("2 - Log Out.\n\n");
         }
         printf("Quelle est votre choix : ");
         scanf(" %d",&choix_Menu_Pricipale);
@@ -269,21 +435,25 @@ void MenuPrincipal(){
         if(!isSignedIn && choix_Menu_Pricipale != 1 && choix_Menu_Pricipale != 2){
             printf("Entrez un Nombre entre 1 - 2.\n");
         }else if(isSignedIn && (choix_Menu_Pricipale < 1 || choix_Menu_Pricipale > 4)){
-            printf("Entrez un Nombre entre 1 - 4.\n");
+            printf("Entrez un Nombre entre 1 - 2.\n");
         }
 
         printf("\n\n");
         
-        if(choix_Menu_Pricipale == 1){
-            MenuSignIn();
-        }else if(choix_Menu_Pricipale == 2){
-            MenuSignUp();
-        }else if(isSignedIn && choix_Menu_Pricipale == 3){
-            Role_Menu();
-        }else if(isSignedIn && choix_Menu_Pricipale == 4){
-            logOut();
+        if (!isSignedIn) {
+            if (choix_Menu_Pricipale == 1) {
+                MenuSignIn();
+            } else if (choix_Menu_Pricipale == 2) {
+                MenuSignUp();
+            }
+        } else {
+            if (choix_Menu_Pricipale == 1) {
+                Role_Menu();
+            } else if (choix_Menu_Pricipale == 2) {
+                logOut();
+            }
         }
-    }while(!isSignedIn || choix_Menu_Pricipale != 3);
+    }while(!isSignedIn || (isSignedIn && choix_Menu_Pricipale != 2));
 
 
 }
