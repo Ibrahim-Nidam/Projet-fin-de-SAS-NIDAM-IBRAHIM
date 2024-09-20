@@ -7,6 +7,7 @@
 
 #define MAX_UTILISATEUR 20
 #define MAX_RECLAMATION 10
+#define ID_LENGTH 20
 
 typedef struct{
     char name_User[20];
@@ -15,12 +16,12 @@ typedef struct{
 }User;
 
 typedef struct{
-    char id;
-    char user_Name[30];
+    char id[20];
+    char categorie[30];
     char motif[50];
     char description[100];
     char status[10];
-    char date[12];
+    char date[20];
     int priorite;
 }Reclamation;
 
@@ -29,6 +30,8 @@ User users[MAX_UTILISATEUR];
 Reclamation reclamations[MAX_RECLAMATION];
 User Admin;
 User nouvelle_Utilisateur;
+Reclamation nouvelle_Reclamation;
+
 
 int user_Conteur = 0;
 int reclamations_Conteur = 0;
@@ -38,6 +41,21 @@ int isAdmin = 0;
 int isSignedIn = 0;
 int isAgent = 0;
 
+void DateDuMoment(char buffer[20], size_t length) {
+    time_t now = time(NULL);
+    struct tm *tm_now = localtime(&now);
+    strftime(buffer, length, "%Y-%m-%d %H:%M:%S", tm_now);
+}
+
+void generateRandomID(char id[ID_LENGTH]) {
+    char characters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    int char_count = strlen(characters);
+
+    for (int i = 0; i < ID_LENGTH - 1; i++) { 
+        id[i] = characters[rand() % char_count];
+    }
+    id[ID_LENGTH - 1] = '\0'; 
+}
 
 
 int checkPassword(char utilisateur[20], char password_Utilisateur[20]) {
@@ -68,7 +86,6 @@ int checkPassword(char utilisateur[20], char password_Utilisateur[20]) {
             isSpecial = 1;
         }
     }
-
     
     if (!isUpper) {
         printf("Le mot de passe doit contenir au moins une lettre majuscule.\n");
@@ -100,10 +117,10 @@ int UserCheck (char utilisateur[20], char password_Utilisateur[20]){
     for (int i = 0; i < user_Conteur ; i++){
         // printf("Checking user: %s, Password: %s\n", users[i].name_User, users[i].password_User); // Debugging
         if(strcmp(users[i].name_User, utilisateur) == 0 && strcmp(users[i].password_User,password_Utilisateur) == 0){
-                return 1;
+                return i;
             }
     }
-    return 0;
+    return -1;
 }
 
 
@@ -112,6 +129,7 @@ void MenuSignIn() {
     char password_Utilisateur[20];
     int isUser = 0; 
     int utilisateur_trouver = 0; 
+    int user_Index;
 
     printf("========== Sign In ==========\n");
 
@@ -135,16 +153,24 @@ void MenuSignIn() {
         printf("Entrez votre Mode de Passe : ");
         scanf("%s", password_Utilisateur);
 
-        if (UserCheck(utilisateur, password_Utilisateur)) {
+        user_Index = UserCheck(utilisateur, password_Utilisateur);
 
-            if (strcmp(password_Utilisateur, Admin.password_User) == 0 && strcmp(utilisateur, Admin.name_User) == 0) {
-
+        if (user_Index != -1) {
+            isAdmin = 0;  
+            isAgent = 0;  
+            
+            if (strcmp(users[user_Index].role, "administrateur") == 0) {
                 isAdmin = 1;
                 printf("Bienvenue, Administrateur.\n");
-
-            } else {
-
-                isAdmin = 0; 
+            } 
+            
+            else if (strcmp(users[user_Index].role, "Agent") == 0) {
+                isAgent = 1;
+                printf("Bienvenue, Agent.\n");
+            } 
+            
+            else {
+                printf("Bienvenue, Utilisateur.\n");
             }
 
             isUser = 1; 
@@ -183,8 +209,7 @@ void MenuSignUp() {
     int i = 0;
 
     printf("========== Sign Up ==========\n");
-
-
+    
     while (1) { 
         printf("Entrez votre nom du compte : ");
         scanf(" %s", utilisateur);
@@ -196,14 +221,12 @@ void MenuSignUp() {
         }
     }
 
-    
     do {
         printf("Entrez votre Mode de Passe : ");
         scanf(" %s", password_Utilisateur);
         i = checkPassword(utilisateur, password_Utilisateur);
     } while (i != 1);
 
-   
     strcpy(nouvelle_Utilisateur.name_User, utilisateur);
     strcpy(nouvelle_Utilisateur.password_User, password_Utilisateur);
     strcpy(nouvelle_Utilisateur.role,"Client");
@@ -215,7 +238,7 @@ void MenuSignUp() {
 void GestionUtilisateurs(){
     char nom_utilisateur[30];
     int delete_Another = 1;
-    int found = 0;  
+    int trouver = 0;  
 
     do {
 
@@ -236,7 +259,7 @@ void GestionUtilisateurs(){
         }else{
             for (int i = 0; i < user_Conteur; i++) {
                 if (strcmp(users[i].name_User, nom_utilisateur) == 0) {
-                    found = 1;  
+                    trouver = 1;  
 
                     for (int j = i; j < user_Conteur - 1; j++) {
                         strcpy(users[j].name_User, users[j + 1].name_User);
@@ -249,7 +272,7 @@ void GestionUtilisateurs(){
                 }
             }
 
-            if (!found) {
+            if (!trouver) {
                 printf("L'utilisateur n'existe pas ou le nom est incorrect.\n\n");
             }
         }
@@ -273,10 +296,81 @@ void GestionUtilisateurs(){
 
 void GestionReclamations(){
 
+    printf("Les  reclamations sont : \n");
+
+    for(int i =  0; i < reclamations_Conteur; i++){
+
+        printf("- Reclamation %d: ID: %s",i + 1,  reclamations[i].id);
+        printf("- Categorie: %s", reclamations[i].categorie);
+        printf("- Motif: %s\n", reclamations[i].motif);
+        printf("- Description: %s\n", reclamations[i].description);
+        printf("- Statut: %s\n", reclamations[i].status);
+        printf("- Date: %s\n", reclamations[i].date);
+        printf("\n\n");
+
+    }
+
+
+
 }
 
-void AttribuerRoles(){
+void AttribuerRoles() {
+    char nom_utilisateur[30];
+    int Choix_New_Role;
+    char Nouveau_Role[30];
+    int trouver = 0;
 
+    getchar();
+    printf("Les Utilisateurs sont : \n");
+    for (int i = 0; i < user_Conteur; i++) {
+        printf("Utilisateur %d: Nom: %s, Role: %s\n", i + 1, users[i].name_User, users[i].role);
+    }
+    printf("\n");
+
+    while (1) { 
+        printf("Entrez le nom d'utilisateur pour changer leur rôle : ");
+        scanf(" %s", nom_utilisateur);
+
+        if (UtilisateurExiste(nom_utilisateur)) {
+            break; 
+        } else {
+            printf("Ce compte n'existe pas. Veuillez entrer un autre nom d'utilisateur.\n");
+        }
+    }
+
+    
+    printf("Choisir le nouveau rôle : 1 - Administrateur, 2 - Agent, 3 - Client\n");
+    scanf(" %d", &Choix_New_Role);
+
+    for (int i = 0; i < user_Conteur; i++) {
+        if (strcmp(users[i].name_User, nom_utilisateur) == 0) {
+            trouver = 1;  
+            
+            switch (Choix_New_Role) {
+                case 1:
+                    strcpy(users[i].role, "administrateur");
+                    isAdmin = 1;
+                    break;
+                case 2:
+                    strcpy(users[i].role, "Agent");
+                    isAgent = 1;
+                    break;
+                case 3:
+                    strcpy(users[i].role, "client"); 
+                    break;
+                default:
+                    printf("Choix de role invalide.\n");
+                    return; 
+            }
+            
+            printf("Le role de l'utilisateur %s a ete change en %s.\n\n", nom_utilisateur, users[i].role);
+            break;  
+        }
+    }
+    
+    if (!trouver) {
+        printf("L'utilisateur n'existe pas ou le nom est incorrect.\n\n");
+    }
 }
 
 void GenerationStatistiques(){
@@ -285,9 +379,16 @@ void GenerationStatistiques(){
 
 void TraiterReclamation(){
 
+    printf("Traiter Les reclamations. \n");
+
+
+
+
 }
 
 void AjouterReclamation(){
+
+    
 
 }
 
@@ -305,9 +406,9 @@ void MenuAdministrateur(){
     printf("Bienvenue dans votre espace Administrateur.\n");
 
     do{
-        printf("1 - Gestion des  utilisateurs.\t 2 - Gestion des Reclamations.\n");
-        printf("3 - Attribue les roles.\t 4 - Traiter les reclamations.\n");
-        printf("5 - Generation des Statistiques. \t 6 - Afficher les réclamations ordonnées par priorite\n");
+        printf("1 - Gestion des  utilisateurs.\t          2 - Gestion des Reclamations.\n");
+        printf("3 - Attribue les roles.\t                  4 - Traiter les reclamations.\n");
+        printf("5 - Generation des Statistiques. \t  6 - Afficher les réclamations ordonnées par priorite\n");
         printf("7 - Quittez\n");
         printf("Quelle est votre choix : ");
         scanf(" %d",&choix_Menu_Administrateur);
@@ -349,7 +450,7 @@ void MenuAdministrateur(){
 void MenuAgent(){
     int choix_Menu_Agent = 0;
 
-    printf("Bienvenue dans votre espace Agent");
+    printf("Bienvenue dans votre espace Agent.\n");
 
     do{
         printf("=========== Menu ===========\n");
@@ -399,13 +500,10 @@ void  MenuUtilisateur() {
 void  Role_Menu(){
 
     if (isAdmin){
-        // printf("Bienvenue dans le menu Administrateur.\n");
         MenuAdministrateur();
     }else if (isAgent) {
-        // printf("Bienvenue dans le menu Agent .\n");
         MenuAgent();
     }else {
-        // printf("Bienvenue dans le menu Utilisateur.\n");
         MenuUtilisateur();
     }
 }
@@ -413,14 +511,14 @@ void  Role_Menu(){
 void logOut(){
     isSignedIn = 0;
     isAdmin = 0;
-
+    isAgent = 0;
     printf("Vous ete Deconnecte.\n\n");
 }
 
 void MenuPrincipal(){
     int choix_Menu_Pricipale;
     do{
-        if(!isSignedIn){ // finish this tomorrow
+        if(!isSignedIn){ 
             printf("========== Menu Pricipal ==========\n");
             printf("1 - Sign In\t 2 - Sign Up\n");
         }
@@ -468,6 +566,7 @@ void admin(){
 
 
 int main(){
+    srand(time(NULL));
     admin();
     MenuPrincipal();
     return 0;
