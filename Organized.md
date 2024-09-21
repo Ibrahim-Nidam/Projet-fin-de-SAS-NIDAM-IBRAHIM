@@ -10,15 +10,15 @@
 
 2. **Gestion des utilisateurs**
    - **Sign Up**
-     - Input: Identifiant, Mot de passe, Informations pertinentes
+     - Input: Identifiant, Mot de passe, Informations pertinentes ✅
      - Constraints: 
-       - Longueur min: 8 caractères
-       - Contient: 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial
-       - Ne doit pas contenir le nom d'utilisateur
+       - Longueur min: 8 caractères ✅
+       - Contient: 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial ✅
+       - Ne doit pas contenir le nom d'utilisateur ✅
    - **Sign In**
-     - Input: Identifiant, Mot de passe
-     - Action: Authentification
-     - Lock Account: After failed attempts
+     - Input: Identifiant, Mot de passe ✅
+     - Action: Authentification ✅
+     - Lock Account: After failed attempts ✅
    - **Gérer les rôles des utilisateurs**
      - Rôles: Administrateur, Agent de Réclamation, Client
        - **Administrateur**: Accès complet
@@ -29,12 +29,12 @@
 
 3. **Gestion des réclamations**
    - **Ajouter une réclamation**
-     - Input: ID (généré), Motif, Description, Catégorie, Status (auto), Date (auto)
+     - Input: ID (généré), Motif, Description, Catégorie, Status (auto), Date (auto) ✅
    - **Afficher la liste des réclamations**
-     - Access: Administrateurs, Agents de Réclamation
+     - Access: Administrateurs, Agents de Réclamation ✅
    - **Modifier/Supprimer une réclamation**
      - Conditions: 
-       - Administrateurs/Agents: Toutes
+       - Administrateurs/Agents: Toutes ✅
        - Clients: Seulement leurs réclamations, sous conditions
    - **Traiter une réclamation**
      - Actions: Marquer comme "en cours", "résolue", "fermée"
@@ -49,9 +49,9 @@
 
 4. **Statistiques et Rapports**
    - **Afficher le nombre total de réclamations**
-     - Access: Administrateurs
+     - Access: Administrateurs ✅
    - **Afficher le taux de résolution**
-     - Access: Administrateurs
+     - Access: Administrateurs ✅
    - **Calculer le délai moyen de traitement**
      - Access: Administrateurs
    - **Générer un rapport journalier**
