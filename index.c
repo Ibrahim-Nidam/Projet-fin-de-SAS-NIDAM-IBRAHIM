@@ -27,13 +27,11 @@ typedef struct{
     char name_utilisateur[20];
 }Reclamation;
 
-
 User users[MAX_UTILISATEUR];
 Reclamation reclamations[MAX_RECLAMATION];
 User Admin;
 User nouvelle_Utilisateur;
 Reclamation nouvelle_Reclamation;
-
 
 int user_Conteur = 0;
 int reclamations_Conteur = 0;
@@ -52,7 +50,6 @@ void DateDuMoment(char date[20]) {
     strftime(date, 20, "%Y-%m-%d %H:%M:%S", tm_now);
 }
 
-
 void generateRandomID(char id[ID_LENGTH]) {
     char characters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     int char_count = strlen(characters);
@@ -63,24 +60,20 @@ void generateRandomID(char id[ID_LENGTH]) {
     id[ID_LENGTH - 1] = '\0'; 
 }
 
-
 int checkPassword(char utilisateur[20], char password_Utilisateur[20]) {
     int isUpper = 0;
     int isLower = 0;
     int isNumber = 0;
     int isSpecial = 0;
     int isMinuLength = 8;
-
     int passLength = strlen(password_Utilisateur);
     int isValid = 1;
 
-    
     if (passLength < isMinuLength) {
         printf("Le mot de passe doit contenir au moins 8 caracteres.\n");
         isValid = 0;
     }
 
-    
     for (int i = 0; i < passLength; i++) {
         if (password_Utilisateur[i] >= 'A' && password_Utilisateur[i] <= 'Z') {
             isUpper = 1;
@@ -118,7 +111,6 @@ int checkPassword(char utilisateur[20], char password_Utilisateur[20]) {
     return isValid;
 }
 
-
 int UserCheck (char utilisateur[20], char password_Utilisateur[20]){
     for (int i = 0; i < user_Conteur ; i++){
         // printf("Checking user: %s, Password: %s\n", users[i].name_User, users[i].password_User); // Debugging
@@ -129,25 +121,23 @@ int UserCheck (char utilisateur[20], char password_Utilisateur[20]){
     return -1;
 }
 
-
 void MenuSignIn() {
     char utilisateur[20];
     char password_Utilisateur[20];
     int isUser = 0; 
     int utilisateur_trouver = 0; 
-    int user_Index;
+    int User_index_sign_in_function;
 
     printf("========== Sign In ==========\n");
 
     while (isUser == 0) {
         printf("Entrez votre nom du compte : ");
         scanf("%s", utilisateur);
-
         
         for (int i = 0; i < user_Conteur; i++) {
             if (strcmp(users[i].name_User, utilisateur) == 0) {
                 utilisateur_trouver = 1; 
-                user_Index = i;
+                User_index_sign_in_function = i;
                 break;
             }
         }
@@ -160,19 +150,19 @@ void MenuSignIn() {
         printf("Entrez votre Mode de Passe : ");
         scanf("%s", password_Utilisateur);
 
-        user_Index = UserCheck(utilisateur, password_Utilisateur);
+        User_index_sign_in_function = UserCheck(utilisateur, password_Utilisateur);
 
-        if (user_Index != -1) {
+        if (User_index_sign_in_function != -1) {
             isAdmin = 0;  
             isAgent = 0;  
             printf("\n");
             
-            if (strcmp(users[user_Index].role, "administrateur") == 0) {
+            if (strcmp(users[User_index_sign_in_function].role, "administrateur") == 0) {
                 isAdmin = 1;
                 printf("Bienvenue, Administrateur.\n");
             } 
             
-            else if (strcmp(users[user_Index].role, "Agent") == 0) {
+            else if (strcmp(users[User_index_sign_in_function].role, "Agent") == 0) {
                 isAgent = 1;
                 printf("Bienvenue, Agent.\n");
             } 
@@ -202,7 +192,6 @@ void MenuSignIn() {
     printf("\n");
 
 }
-
 
 int UtilisateurExiste(char utilisateur[20]) {
     for (int i = 0; i < user_Conteur; i++) {
@@ -300,11 +289,8 @@ void GestionUtilisateurs(){
         printf("\n\n");
 
     }while(delete_Another == 1);
-    
 
 }
-
-
 
 void afficherLesReclamations() {
     int reclamation_En_Cours = 0;
@@ -409,7 +395,6 @@ void AttribuerRoles() {
             printf("Ce compte n'existe pas. Veuillez entrer un autre nom d'utilisateur.\n");
         }
     }
-
     
     printf("Choisir le nouveau role : 1 - Administrateur, 2 - Agent, 3 - Client\n");
     scanf(" %d", &Choix_New_Role);
@@ -449,7 +434,6 @@ void GenerationStatistiques(){
     int resolution_Conteur = 0;
 
     printf("Nombre total de reclamations : %d\n", reclamations_Conteur);
-
 
     for (int i = 0; i < reclamations_Conteur; i++) {
         if (strcmp(reclamations[i].status, "resolu") == 0) {
@@ -560,8 +544,10 @@ void TraiterReclamation() {
     printf("%d",isEnCours);
 }
 
-void AjouterReclamation(int user_Index){
+void AjouterReclamation(){
     int categorie_choix;
+    
+    printf("Adding claim for user: %s (index: %d)\n", users[user_Index].name_User, user_Index);  // Debug print
 
     generateRandomID(nouvelle_Reclamation.id);
     DateDuMoment(nouvelle_Reclamation.date);
@@ -592,7 +578,6 @@ void AjouterReclamation(int user_Index){
 
     }while(categorie_choix  < 1 || categorie_choix > 4);
 
-
     printf("Entrez le Motif du reclamation : ");
     getchar(); 
     fgets(nouvelle_Reclamation.motif, sizeof(nouvelle_Reclamation.motif), stdin);
@@ -608,11 +593,10 @@ void AjouterReclamation(int user_Index){
     printf("Reclamation ajoutee avec succes. ID: %s\n", nouvelle_Reclamation.id);
     printf("Current user: %s, user index : %d\n", users[user_Index].name_User,user_Index);
 
-
 }
 
 void ReclamationPrecisDuClient(){
-     int Index_reclamation_utilisateur = 1;
+     int Index_reclamation_utilisateur = 0;
 
     // Display claims belonging to the signed-in user
     printf("Les reclamations pour l'utilisateur %s sont : \n", users[user_Index].name_User);
@@ -620,7 +604,8 @@ void ReclamationPrecisDuClient(){
         if (strcmp(reclamations[i].name_utilisateur, users[user_Index].name_User) == 0) {
             printf("Comparing with user: %s, Claim user: %s\n\n", users[user_Index].name_User, reclamations[i].name_utilisateur);
 
-            printf("- Reclamation %d: ID: %s ", Index_reclamation_utilisateur++, reclamations[i].id);
+            Index_reclamation_utilisateur++;
+            printf("- Reclamation %d: ID: %s ", Index_reclamation_utilisateur, reclamations[i].id);
             printf("- Categorie: %s ", reclamations[i].categorie);
             printf("- Motif: %s\n", reclamations[i].motif);
             printf("- Description: %s\n", reclamations[i].description);
@@ -691,7 +676,6 @@ void MenuAdministrateur(){
     }while (choix_Menu_Administrateur != 7);
 }
 
-
 void MenuAgent(){
     int choix_Menu_Agent = 0;
 
@@ -731,16 +715,14 @@ void  MenuUtilisateur() {
 
 
     if(choix_Menu_utilisateur == 1){
-        AjouterReclamation(user_Index);
+        AjouterReclamation();
     }else if (choix_Menu_utilisateur == 2){
         ConsulterReclamation();
     }else{
         printf("Au revoir!\n\n");
         
     }
-
 }
-
 
 void  Role_Menu(){
 
@@ -797,8 +779,6 @@ void MenuPrincipal(){
             }
         }
     }while(!isSignedIn || (isSignedIn && choix_Menu_Pricipale != 2));
-
-
 }
 
 void admin(){
@@ -816,6 +796,3 @@ int main(){
     MenuPrincipal();
     return 0;
 }
-
-
-
