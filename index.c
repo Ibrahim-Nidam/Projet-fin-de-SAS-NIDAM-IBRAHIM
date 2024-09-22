@@ -23,6 +23,7 @@ typedef struct{
     char status[10];
     char date[20];
     int priorite;
+    char note[150];
 }Reclamation;
 
 
@@ -40,6 +41,7 @@ int password_Incorrect_Conteur = 0;
 int isAdmin = 0;
 int isSignedIn = 0;
 int isAgent = 0;
+int isEnCours = 0;
 
 void DateDuMoment(char date[20]) {
     time_t now = time(NULL);
@@ -235,7 +237,7 @@ void MenuSignUp() {
     strcpy(nouvelle_Utilisateur.role,"Client");
     users[user_Conteur++] = nouvelle_Utilisateur;
 
-    printf("Inscription réussie pour %s.\n", utilisateur);
+    printf("Inscription reussie pour %s.\n", utilisateur);
 }
 
 void GestionUtilisateurs(){
@@ -270,7 +272,7 @@ void GestionUtilisateurs(){
                         strcpy(users[j].role, users[j + 1].role);
                     }
                     user_Conteur--;  
-                    printf("Utilisateur %s supprimé.\n\n", nom_utilisateur);
+                    printf("Utilisateur %s supprime.\n\n", nom_utilisateur);
                     break;  
                 }
             }
@@ -297,22 +299,44 @@ void GestionUtilisateurs(){
 
 }
 
-void afficherLesReclamations(){
-    printf("Les  reclamations sont : \n");
-
-    for(int i =  0; i < reclamations_Conteur; i++){
-
-        printf("- Reclamation %d: ID: %s ",i + 1,  reclamations[i].id);
-        printf("- Categorie: %s ", reclamations[i].categorie);
-        printf("- Motif: %s\n", reclamations[i].motif);
-        printf("- Description: %s\n", reclamations[i].description);
-        printf("- Statut: %s\n", reclamations[i].status);
-        printf("- Date: %s\n", reclamations[i].date);
-        printf("\n\n");
-        printf("==========================================");
-        printf("\n\n");
 
 
+void afficherLesReclamations() {
+    int reclamation_En_Cours = 0;
+    int conteur_En_Cours = 0;
+    if (isEnCours == 0) {
+        if (reclamations_Conteur == 0) {
+            printf("Aucune reclamation n'a ete soumise.\n");
+            return;
+        }  
+        printf("Les  reclamations sont : \n");
+        for (int i = 0; i < reclamations_Conteur; i++) {
+            printf("- Reclamation %d: ID: %s ", i + 1, reclamations[i].id);
+            printf("- Categorie: %s ", reclamations[i].categorie);
+            printf("- Motif: %s\n", reclamations[i].motif);
+            printf("- Description: %s\n", reclamations[i].description);
+            printf("- Statut: %s\n", reclamations[i].status);
+            printf("- Date: %s\n", reclamations[i].date);
+            printf("==========================================\n\n");
+        }
+    }
+    if (isEnCours) {
+        for (int i = 0; i < reclamations_Conteur; i++) {
+            if (strcmp(reclamations[i].status, "En Cours") == 0) {
+                reclamation_En_Cours = 1;
+                conteur_En_Cours++;
+                printf("- Reclamation %d: ID: %s ", conteur_En_Cours, reclamations[i].id);
+                printf("- Categorie: %s ", reclamations[i].categorie);
+                printf("- Motif: %s\n", reclamations[i].motif);
+                printf("- Description: %s\n", reclamations[i].description);
+                printf("- Statut: %s\n", reclamations[i].status);
+                printf("- Date: %s\n", reclamations[i].date);
+                printf("==========================================\n\n");
+            }
+        }
+        if (!reclamation_En_Cours) {
+            printf("Aucune reclamation n'est en cours.\n\n");
+        }
     }
 }
 
@@ -371,7 +395,7 @@ void AttribuerRoles() {
     printf("\n");
 
     while (1) { 
-        printf("Entrez le nom d'utilisateur pour changer leur rôle : ");
+        printf("Entrez le nom d'utilisateur pour changer leur role : ");
         scanf(" %s", nom_utilisateur);
 
         if (UtilisateurExiste(nom_utilisateur)) {
@@ -382,7 +406,7 @@ void AttribuerRoles() {
     }
 
     
-    printf("Choisir le nouveau rôle : 1 - Administrateur, 2 - Agent, 3 - Client\n");
+    printf("Choisir le nouveau role : 1 - Administrateur, 2 - Agent, 3 - Client\n");
     scanf(" %d", &Choix_New_Role);
 
     for (int i = 0; i < user_Conteur; i++) {
@@ -434,18 +458,94 @@ void GenerationStatistiques(){
     }
 
     float Ratio_Resolution = (float)resolution_Conteur / reclamations_Conteur * 100;
-    printf("Taux de résolution des réclamations : %.2f%%\n", Ratio_Resolution);
+    printf("Taux de resolution des reclamations : %.2f%%\n", Ratio_Resolution);
 
 }
 
-void TraiterReclamation(){
-
-    printf("Traiter Les reclamations : \n");
-
-
-
-
-
+void TraiterReclamation() {
+    char annuler_choix[10];
+    int choix_reclamation;
+    int nouvelle_status;
+    int note_choix;
+    char note[150];
+    printf("Traiter Les reclamations : \n\n");
+    isEnCours = 1;
+    afficherLesReclamations();
+       
+    getchar();
+    while (1) {
+        printf("Entrez le numero de la reclamation que vous voulez Traiter ou entrez '.' pour annuler l'action : ");
+        fgets(annuler_choix, sizeof(annuler_choix), stdin);
+        annuler_choix[strcspn(annuler_choix, "\n")] = '\0';
+        
+        if (strcmp(annuler_choix, ".") == 0) {
+            printf("Action annulee.\n");
+            return;
+        }
+        
+        if (sscanf(annuler_choix, "%d", &choix_reclamation) == 1) {
+            int valid_choice = 0;
+            int claim_index = -1;
+            for (int i = 0, j = 0; i < reclamations_Conteur; i++) {
+                if (strcmp(reclamations[i].status, "En Cours") == 0) {
+                    j++;
+                    if (j == choix_reclamation) {
+                        valid_choice = 1;
+                        claim_index = i;
+                        break;
+                    }
+                }
+            }
+            
+            if (valid_choice) {
+                printf("Entrez le nouveau statut de la reclamation 1 - Resolue, 2 - Rejecter : ");
+                while (scanf(" %d", &nouvelle_status) != 1 || (nouvelle_status != 1 && nouvelle_status != 2)) {
+                    printf("Statut non valide. Veuillez entrer 1 (Resolue) ou 2 (Rejecter) : ");
+                    while (getchar() != '\n');  
+                }
+                
+                printf("Voulez vous entrez une note sur le traitement 1 - Oui, 2 - Non : ");
+                while (scanf(" %d", &note_choix) != 1 || (note_choix != 1 && note_choix != 2)) {
+                    printf("Entree non valide. Veuillez entrer 1 (Oui) ou 2 (Non) : ");
+                    while (getchar() != '\n');  
+                }
+                
+                if (note_choix == 1) {
+                    printf("Entrez votre note : ");
+                    getchar();
+                    fgets(note, sizeof(note), stdin);
+                    note[strcspn(note, "\n")] = '\0';  
+                    strcpy(reclamations[claim_index].note, note);
+                    printf("\n");
+                }
+                
+                switch (nouvelle_status) {
+                    case 1:
+                        strcpy(reclamations[claim_index].status, "resolu");
+                        printf("La reclamation numero %d a ete resolue.\n", choix_reclamation);
+                        break;
+                    case 2:
+                        strcpy(reclamations[claim_index].status, "rejecter");
+                        printf("La reclamation numero %d a ete rejecter.\n", choix_reclamation);
+                        break;
+                }
+                
+                if (note_choix == 1) {
+                    printf("La note saisie : %s\n\n", note);
+                } else {
+                    printf("Aucun note a ete saisie.\n\n");
+                }
+                
+                printf("\nLes reclamations encore en cours : \n");
+                afficherLesReclamations();
+            } else {
+                printf("Numero de reclamation invalide. Veuillez reessayer.\n");
+            }
+        } else {
+            printf("Entree invalide. Veuillez entrer un numero de reclamation valide ou '.' pour annuler.\n");
+        }
+    }
+    isEnCours = 0;
 }
 
 void AjouterReclamation(){
@@ -487,11 +587,11 @@ void AjouterReclamation(){
     getchar(); 
     fgets(nouvelle_Reclamation.description, sizeof(nouvelle_Reclamation.description), stdin);
 
-    strcpy(nouvelle_Reclamation.status, "en cours");
+    strcpy(nouvelle_Reclamation.status, "En Cours");
 
     reclamations[reclamations_Conteur++] = nouvelle_Reclamation;
 
-    printf("Réclamation ajoutée avec succès. ID: %s\n", nouvelle_Reclamation.id);
+    printf("Reclamation ajoutee avec succes. ID: %s\n", nouvelle_Reclamation.id);
 
 }
 

@@ -37,7 +37,7 @@
        - Administrateurs/Agents: Toutes ✅
        - Clients: Seulement leurs réclamations, sous conditions
    - **Traiter une réclamation**
-     - Actions: Marquer comme "en cours", "résolue", "fermée"
+     - Actions: Marquer comme "en cours", "résolue", "fermée" ✅
      - Ajout de notes internes
    - **Rechercher une réclamation**
      - Criteria: ID, nom du client, date, statut, catégorie
