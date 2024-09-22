@@ -24,6 +24,7 @@ typedef struct{
     char date[20];
     int priorite;
     char note[150];
+    char name_utilisateur[20];
 }Reclamation;
 
 
@@ -42,6 +43,8 @@ int isAdmin = 0;
 int isSignedIn = 0;
 int isAgent = 0;
 int isEnCours = 0;
+
+int user_Index = -1;
 
 void DateDuMoment(char date[20]) {
     time_t now = time(NULL);
@@ -144,6 +147,7 @@ void MenuSignIn() {
         for (int i = 0; i < user_Conteur; i++) {
             if (strcmp(users[i].name_User, utilisateur) == 0) {
                 utilisateur_trouver = 1; 
+                user_Index = i;
                 break;
             }
         }
@@ -191,6 +195,7 @@ void MenuSignIn() {
             }
         }
     }
+    printf("Current user: %s, user index : %d\n", users[user_Index].name_User,user_Index);
 
     isSignedIn = 1;
     password_Incorrect_Conteur = 0; 
@@ -350,9 +355,9 @@ void GestionReclamations(){
 
         afficherLesReclamations();
         
+        getchar();
         while (1) {
             printf("Entrez le numero de la reclamation que vous voulez supprimer ou entrez '.' pour annuler l'action : ");
-            getchar();
             fgets(annuler_choix, sizeof(annuler_choix), stdin); 
 
             
@@ -468,7 +473,9 @@ void TraiterReclamation() {
     int nouvelle_status;
     int note_choix;
     char note[150];
+
     printf("Traiter Les reclamations : \n\n");
+
     isEnCours = 1;
     afficherLesReclamations();
        
@@ -523,10 +530,14 @@ void TraiterReclamation() {
                     case 1:
                         strcpy(reclamations[claim_index].status, "resolu");
                         printf("La reclamation numero %d a ete resolue.\n", choix_reclamation);
+                        isEnCours = 0;
+
                         break;
                     case 2:
                         strcpy(reclamations[claim_index].status, "rejecter");
                         printf("La reclamation numero %d a ete rejecter.\n", choix_reclamation);
+                        isEnCours = 0;
+
                         break;
                 }
                 
@@ -546,13 +557,16 @@ void TraiterReclamation() {
         }
     }
     isEnCours = 0;
+    printf("%d",isEnCours);
 }
 
-void AjouterReclamation(){
+void AjouterReclamation(int user_Index){
     int categorie_choix;
 
     generateRandomID(nouvelle_Reclamation.id);
     DateDuMoment(nouvelle_Reclamation.date);
+
+    strcpy(nouvelle_Reclamation.name_utilisateur, users[user_Index].name_User);
     do{
 
         printf("Entrez la categorie de votre Reclamation 1 - Financier , 2 - Technique, 3 - Service 4 - autre \n");
@@ -592,10 +606,38 @@ void AjouterReclamation(){
     reclamations[reclamations_Conteur++] = nouvelle_Reclamation;
 
     printf("Reclamation ajoutee avec succes. ID: %s\n", nouvelle_Reclamation.id);
+    printf("Current user: %s, user index : %d\n", users[user_Index].name_User,user_Index);
+
 
 }
 
+void ReclamationPrecisDuClient(){
+     int Index_reclamation_utilisateur = 1;
+
+    // Display claims belonging to the signed-in user
+    printf("Les reclamations pour l'utilisateur %s sont : \n", users[user_Index].name_User);
+    for (int i = 0; i < reclamations_Conteur; i++) {
+        if (strcmp(reclamations[i].name_utilisateur, users[user_Index].name_User) == 0) {
+            printf("Comparing with user: %s, Claim user: %s\n\n", users[user_Index].name_User, reclamations[i].name_utilisateur);
+
+            printf("- Reclamation %d: ID: %s ", Index_reclamation_utilisateur++, reclamations[i].id);
+            printf("- Categorie: %s ", reclamations[i].categorie);
+            printf("- Motif: %s\n", reclamations[i].motif);
+            printf("- Description: %s\n", reclamations[i].description);
+            printf("- Statut: %s\n", reclamations[i].status);
+            printf("- Date: %s\n", reclamations[i].date);
+            printf("==========================================\n\n");
+        }
+    }
+
+    if  (Index_reclamation_utilisateur == 1) {
+        printf("Aucune reclamation trouvee pour cet utilisateur.\n");
+    }
+}
+
 void ConsulterReclamation(){
+
+    ReclamationPrecisDuClient();
 
 }
 
@@ -689,7 +731,7 @@ void  MenuUtilisateur() {
 
 
     if(choix_Menu_utilisateur == 1){
-        AjouterReclamation();
+        AjouterReclamation(user_Index);
     }else if (choix_Menu_utilisateur == 2){
         ConsulterReclamation();
     }else{
