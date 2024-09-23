@@ -23,7 +23,7 @@
      - Rôles: Administrateur, Agent de Réclamation, Client
        - **Administrateur**: Accès complet
        - **Agent de Réclamation**: Gère les réclamations ✅
-       - **Client**: Soumet et consulte ses réclamations
+       - **Client**: Soumet et consulte ses réclamations ✅
 
 ---
 
@@ -35,7 +35,7 @@
    - **Modifier/Supprimer une réclamation**
      - Conditions: 
        - Administrateurs/Agents: Toutes ✅
-       - Clients: Seulement leurs réclamations, sous conditions
+       - Clients: Seulement leurs réclamations, sous conditions✅
    - **Traiter une réclamation**
      - Actions: Marquer comme "en cours", "résolue", "fermée" ✅
      - Ajout de notes internes ✅

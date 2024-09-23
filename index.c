@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE
 #include <stdio.h> // Standard Input/Output library Contains functions for input and output, including:printf - scanf  - fgets
 #include <stdlib.h> // Standard Library Provides functions for memory allocation, process control, and conversions:rand - srand - malloc
 #include <string.h>  // String handling library Contains functions for manipulating C strings:strcpy - strlen - strstr - strcmp
@@ -22,7 +23,7 @@ typedef struct{
     char description[100];
     char status[10];
     char date[20];
-    int priorite;
+    char priorite[20];
     char note[150];
     char name_utilisateur[20];
 }Reclamation;
@@ -153,6 +154,8 @@ void MenuSignIn() {
         User_index_sign_in_function = UserCheck(utilisateur, password_Utilisateur);
 
         if (User_index_sign_in_function != -1) {
+
+            user_Index = User_index_sign_in_function;
             isAdmin = 0;  
             isAgent = 0;  
             printf("\n");
@@ -308,6 +311,7 @@ void afficherLesReclamations() {
             printf("- Description: %s\n", reclamations[i].description);
             printf("- Statut: %s\n", reclamations[i].status);
             printf("- Date: %s\n", reclamations[i].date);
+            printf("- Client : %s\n",reclamations[i].name_utilisateur);
             printf("==========================================\n\n");
         }
     }
@@ -322,6 +326,7 @@ void afficherLesReclamations() {
                 printf("- Description: %s\n", reclamations[i].description);
                 printf("- Statut: %s\n", reclamations[i].status);
                 printf("- Date: %s\n", reclamations[i].date);
+                printf("- Client : %s\n",reclamations[i].name_utilisateur);
                 printf("==========================================\n\n");
             }
         }
@@ -389,6 +394,11 @@ void AttribuerRoles() {
         printf("Entrez le nom d'utilisateur pour changer leur role : ");
         scanf(" %s", nom_utilisateur);
 
+        if(strcmp(nom_utilisateur,"admin") == 0){
+            printf("Vous ne pouvez pas changer le role de l'administrateur.\n\n");
+            continue;
+        }
+
         if (UtilisateurExiste(nom_utilisateur)) {
             break; 
         } else {
@@ -398,6 +408,8 @@ void AttribuerRoles() {
     
     printf("Choisir le nouveau role : 1 - Administrateur, 2 - Agent, 3 - Client\n");
     scanf(" %d", &Choix_New_Role);
+
+
 
     for (int i = 0; i < user_Conteur; i++) {
         if (strcmp(users[i].name_User, nom_utilisateur) == 0) {
@@ -587,45 +599,138 @@ void AjouterReclamation(){
     fgets(nouvelle_Reclamation.description, sizeof(nouvelle_Reclamation.description), stdin);
 
     strcpy(nouvelle_Reclamation.status, "En Cours");
+    strcpy(nouvelle_Reclamation.priorite, "Base");
 
     reclamations[reclamations_Conteur++] = nouvelle_Reclamation;
 
     printf("Reclamation ajoutee avec succes. ID: %s\n", nouvelle_Reclamation.id);
-    printf("Current user: %s, user index : %d\n", users[user_Index].name_User,user_Index);
 
 }
 
-void ReclamationPrecisDuClient(){
-     int Index_reclamation_utilisateur = 0;
+void parseDateTime(const char* dateString, struct tm* tm) {
+    sscanf(dateString, "%d-%d-%d %d:%d:%d",
+           &tm->tm_year, &tm->tm_mon, &tm->tm_mday,
+           &tm->tm_hour, &tm->tm_min, &tm->tm_sec);
+    tm->tm_year -= 1900;  // Adjust year (years since 1900)
+    tm->tm_mon -= 1;      // Adjust month (0-11)
+}
 
-    // Display claims belonging to the signed-in user
+
+int apres24Heures(const char* dateString) {
+    struct tm tm = {0};
+    time_t claimTime, currentTime;
+    // Parse the date string
+    parseDateTime(dateString, &tm);
+    // Convert to time_t
+    claimTime = mktime(&tm);
+    // Get current time
+    time(&currentTime);
+    // Check if the difference is greater than 86400 seconds (24 hours)
+    return difftime(currentTime, claimTime) > 86400;
+}
+
+int ReclamationPrecisDuClient(int valid_claims[]) {
+    int Index_reclamation_utilisateur = 0;
+
     printf("Les reclamations pour l'utilisateur %s sont : \n", users[user_Index].name_User);
     for (int i = 0; i < reclamations_Conteur; i++) {
         if (strcmp(reclamations[i].name_utilisateur, users[user_Index].name_User) == 0) {
-            printf("Comparing with user: %s, Claim user: %s\n\n", users[user_Index].name_User, reclamations[i].name_utilisateur);
+            if (!apres24Heures(reclamations[i].date) && strcmp(reclamations[i].status, "En Cours") == 0) {
 
-            Index_reclamation_utilisateur++;
-            printf("- Reclamation %d: ID: %s ", Index_reclamation_utilisateur, reclamations[i].id);
-            printf("- Categorie: %s ", reclamations[i].categorie);
-            printf("- Motif: %s\n", reclamations[i].motif);
-            printf("- Description: %s\n", reclamations[i].description);
-            printf("- Statut: %s\n", reclamations[i].status);
-            printf("- Date: %s\n", reclamations[i].date);
-            printf("==========================================\n\n");
+                valid_claims[Index_reclamation_utilisateur] = i;
+                Index_reclamation_utilisateur++;
+
+                printf("- Reclamation %d: ID: %s ", Index_reclamation_utilisateur, reclamations[i].id);
+                printf("- Categorie: %s ", reclamations[i].categorie);
+                printf("- Motif: %s\n", reclamations[i].motif);
+                printf("- Description: %s\n", reclamations[i].description);
+                printf("- Statut: %s\n", reclamations[i].status);
+                printf("- Date: %s\n", reclamations[i].date);
+                printf("==========================================\n\n");
+            }
         }
     }
-
-    if  (Index_reclamation_utilisateur == 1) {
+    if (Index_reclamation_utilisateur == 0) {
         printf("Aucune reclamation trouvee pour cet utilisateur.\n");
     }
+    return Index_reclamation_utilisateur;
 }
 
-void ConsulterReclamation(){
-
-    ReclamationPrecisDuClient();
-
+void ConsulterReclamation() {
+    int choix_Consultation_reclamation = 0;
+    int num_valid_claims;
+    int valid_claims[MAX_RECLAMATION];
+    
+    num_valid_claims = ReclamationPrecisDuClient(valid_claims);
+    
+    if (num_valid_claims > 0) {
+        printf("Entrez le numero de la reclamation que vous souhaitez modifier ou supprimer (1-%d) ou 0 pour revenir : ", num_valid_claims);
+        scanf("%d", &choix_Consultation_reclamation);
+        
+        if (choix_Consultation_reclamation > 0 && choix_Consultation_reclamation <= num_valid_claims) {
+            int claim_index = valid_claims[choix_Consultation_reclamation - 1];
+            
+            printf("Reclamation actuelle :\n");
+            printf("Description: %s\n", reclamations[claim_index].description);
+            
+            printf("Que voulez-vous faire ?\n");
+            printf("1. Modifier la description\n");
+            printf("2. Supprimer la reclamation\n");
+            printf("3. Revenir au menu precedent\n");
+            
+            int action_choice;
+            scanf("%d", &action_choice);
+            getchar();  // Clear the input buffer
+            
+            switch (action_choice) {
+                case 1:
+                    printf("Entrez la nouvelle description (ou appuyez sur Entree pour ne pas modifier) :\n");
+                    char new_description[100];
+                    fgets(new_description, sizeof(new_description), stdin);
+                    
+                    // Remove newline character if present
+                    size_t len = strlen(new_description);
+                    if (len > 0 && new_description[len-1] == '\n') {
+                        new_description[len-1] = '\0';
+                    }
+                    
+                    if (strlen(new_description) > 0) {
+                        strcpy(reclamations[claim_index].description, new_description);
+                        printf("La description a ete mise a jour avec succes.\n");
+                    } else {
+                        printf("Aucune modification n'a ete apportee.\n");
+                    }
+                    break;
+                
+                case 2:
+                    printf("Etes-vous sur de vouloir supprimer cette reclamation ? (O/N) : ");
+                    char confirm;
+                    scanf(" %c", &confirm);
+                    if (confirm == 'O' || confirm == 'o') {
+                        // Shift all elements after the deleted one
+                        for (int i = claim_index; i < reclamations_Conteur - 1; i++) {
+                            reclamations[i] = reclamations[i + 1];
+                        }
+                        reclamations_Conteur--;
+                        printf("La reclamation a ete supprimee avec succes.\n");
+                    } else {
+                        printf("Suppression annulee.\n");
+                    }
+                    break;
+                
+                case 3:
+                    printf("Retour au menu precedent.\n");
+                    break;
+                
+                default:
+                    printf("Choix invalide.\n");
+                    break;
+            }
+        } else if (choix_Consultation_reclamation != 0) {
+            printf("Choix invalide.\n");
+        }
+    }
 }
-
 void OrdreParPriorite(){
 
 }
