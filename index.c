@@ -444,14 +444,40 @@ void AttribuerRoles() {
     }
 }
 
-void GenerationStatistiques(){
+void parseDateTime(const char* dateString, struct tm* tm) {
+    memset(tm, 0, sizeof(struct tm));  // Initialize the struct to zero
+    sscanf(dateString, "%d-%d-%d %d:%d:%d",
+           &tm->tm_year, &tm->tm_mon, &tm->tm_mday,
+           &tm->tm_hour, &tm->tm_min, &tm->tm_sec);
+    tm->tm_year -= 1900;  // Adjust year (years since 1900)
+    tm->tm_mon -= 1;      // Adjust month (0-11)
+    tm->tm_isdst = -1;    // Let the system determine DST
+}
+
+void GenerationStatistiques() {
     int resolution_Conteur = 0;
+    double total_time = 0; // Total processing time for resolved claims
 
     printf("Nombre total de reclamations : %d\n", reclamations_Conteur);
 
     for (int i = 0; i < reclamations_Conteur; i++) {
         if (strcmp(reclamations[i].status, "resolu") == 0) {
             resolution_Conteur++;
+
+            struct tm tm_creation = {0}, tm_resolution = {0};
+            time_t claimTime, resolutionTime;
+
+            // Parse the creation and resolution dates
+            parseDateTime(reclamations[i].date, &tm_creation);
+            parseDateTime(reclamations[i].date_Traitement_resolu, &tm_resolution);
+
+            // Convert to time_t
+            claimTime = mktime(&tm_creation);
+            resolutionTime = mktime(&tm_resolution);
+
+            // Calculate the duration in seconds
+            double duration = difftime(resolutionTime, claimTime);
+            total_time += duration;
         }
     }
 
@@ -463,6 +489,12 @@ void GenerationStatistiques(){
     float Ratio_Resolution = (float)resolution_Conteur / reclamations_Conteur * 100;
     printf("Taux de resolution des reclamations : %.2f%%\n", Ratio_Resolution);
 
+    if (resolution_Conteur > 0) {
+        double moyenne = total_time / resolution_Conteur; // Average in seconds
+        printf("Delai moyen de traitement des reclamations resolues : %.2f secondes\n", moyenne);
+    } else {
+        printf("Aucune reclamation resolue pour le calcul du delai.\n");
+    }
 }
 
 void TraiterReclamation() {
@@ -519,13 +551,13 @@ void TraiterReclamation() {
         }
 
         if (claim_index == -1) {
-            printf("Numéro de réclamation invalide ou la réclamation n'est pas en cours. Veuillez réessayer.\n");
+            printf("Numero de reclamation invalide ou la reclamation n'est pas en cours. Veuillez reessayer.\n");
             continue;
         }
 
-        printf("Entrez le nouveau statut de la reclamation (1 - Resolue, 2 - Rejetee) : ");
+        printf("Entrez le nouveau statut de la reclamation (1 - Resolue, 2 - Rejecter) : ");
         while (scanf("%d", &nouvelle_status) != 1 || (nouvelle_status != 1 && nouvelle_status != 2)) {
-            printf("Statut non valide. Veuillez entrer 1 (Resolue) ou 2 (Rejetee) : ");
+            printf("Statut non valide. Veuillez entrer 1 (Resolue) ou 2 (Rejecter) : ");
             while (getchar() != '\n');
         }
 
@@ -552,14 +584,14 @@ void TraiterReclamation() {
                 break;
             case 2:
                 strcpy(reclamations[claim_index].status, "rejecter");
-                printf("La reclamation numero %d a ete rejetee.\n", choix_reclamation);
+                printf("La reclamation numero %d a ete rejecter.\n", choix_reclamation);
                 break;
         }
 
         if (note_choix == 1) {
-            printf("Note ajoutée : %s\n", reclamations[claim_index].note);
+            printf("Note ajoutee : %s\n", reclamations[claim_index].note);
         } else {
-            printf("Aucune note n'a été ajoutée.\n");
+            printf("Aucune note n'a ete ajoutee.\n");
         }
 
         printf("\nVoulez-vous traiter une autre reclamation ? (oui/non) : ");
@@ -661,15 +693,7 @@ void AjouterReclamation(){
 
 }
 
-void parseDateTime(const char* dateString, struct tm* tm) {
-    memset(tm, 0, sizeof(struct tm));  // Initialize the struct to zero
-    sscanf(dateString, "%d-%d-%d %d:%d:%d",
-           &tm->tm_year, &tm->tm_mon, &tm->tm_mday,
-           &tm->tm_hour, &tm->tm_min, &tm->tm_sec);
-    tm->tm_year -= 1900;  // Adjust year (years since 1900)
-    tm->tm_mon -= 1;      // Adjust month (0-11)
-    tm->tm_isdst = -1;    // Let the system determine DST
-}
+
 
 
 int apres24Heures(const char* dateString) {
