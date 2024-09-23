@@ -1,4 +1,3 @@
-#define _XOPEN_SOURCE
 #include <stdio.h> // Standard Input/Output library Contains functions for input and output, including:printf - scanf  - fgets
 #include <stdlib.h> // Standard Library Provides functions for memory allocation, process control, and conversions:rand - srand - malloc
 #include <string.h>  // String handling library Contains functions for manipulating C strings:strcpy - strlen - strstr - strcmp
@@ -27,6 +26,7 @@ typedef struct{
     char priorite[20];
     char note[150];
     char name_utilisateur[20];
+    char date_Traitement_resolu[20];
 }Reclamation;
 
 User users[MAX_UTILISATEUR];
@@ -189,7 +189,7 @@ void MenuSignIn() {
             }
         }
     }
-    printf("Current user: %s, user index : %d\n", users[user_Index].name_User,user_Index);
+    // printf("Current user: %s, user index : %d\n", users[user_Index].name_User,user_Index);
 
     isSignedIn = 1;
     password_Incorrect_Conteur = 0; 
@@ -257,8 +257,9 @@ void GestionUtilisateurs(){
 
         nom_utilisateur[strcspn(nom_utilisateur, "\n")] = 0;
 
-        if(strcmp(nom_utilisateur,"admin") == 0){
+        if(strcmp(nom_utilisateur, users[0].name_User) == 0){
             printf("Vous ne pouvez pas supprimer l'administrateur.\n");
+
         }else{
             for (int i = 0; i < user_Conteur; i++) {
                 if (strcmp(users[i].name_User, nom_utilisateur) == 0) {
@@ -395,7 +396,7 @@ void AttribuerRoles() {
         printf("Entrez le nom d'utilisateur pour changer leur role : ");
         scanf(" %s", nom_utilisateur);
 
-        if(strcmp(nom_utilisateur,"admin") == 0){
+        if(strstr(nom_utilisateur,users[0].role) == NULL){
             printf("Vous ne pouvez pas changer le role de l'administrateur.\n\n");
             continue;
         }
@@ -464,98 +465,205 @@ void GenerationStatistiques(){
 
 }
 
+// void TraiterReclamation() {
+//     char annuler_choix[10];
+//     int choix_reclamation;
+//     int nouvelle_status;
+//     int note_choix;
+//     char note[150];
+
+//     printf("Traiter Les reclamations : \n\n");
+
+//     isEnCours = 1;
+//     afficherLesReclamations();
+       
+//     getchar();
+//     while (1) {
+//         printf("Entrez le numero de la reclamation que vous voulez Traiter ou entrez '.' pour annuler l'action : ");
+//         fgets(annuler_choix, sizeof(annuler_choix), stdin);
+//         annuler_choix[strcspn(annuler_choix, "\n")] = '\0';
+        
+//         if (strcmp(annuler_choix, ".") == 0) {
+//             printf("Action annulee.\n");
+//             return;
+//         }
+        
+//         if (sscanf(annuler_choix, "%d", &choix_reclamation) == 1) {
+//             int valid_choice = 0;
+//             int claim_index = -1;
+//             for (int i = 0, j = 0; i < reclamations_Conteur; i++) {
+//                 if (strcmp(reclamations[i].status, "En Cours") == 0) {
+//                     j++;
+//                     if (j == choix_reclamation) {
+//                         valid_choice = 1;
+//                         claim_index = i;
+//                         break;
+//                     }
+//                 }
+//             }
+            
+//             if (valid_choice) {
+//                 printf("Entrez le nouveau statut de la reclamation 1 - Resolue, 2 - Rejecter : ");
+//                 while (scanf(" %d", &nouvelle_status) != 1 || (nouvelle_status != 1 && nouvelle_status != 2)) {
+//                     printf("Statut non valide. Veuillez entrer 1 (Resolue) ou 2 (Rejecter) : ");
+//                     while (getchar() != '\n');  
+//                 }
+                
+//                 printf("Voulez vous entrez une note sur le traitement 1 - Oui, 2 - Non : ");
+//                 while (scanf(" %d", &note_choix) != 1 || (note_choix != 1 && note_choix != 2)) {
+//                     printf("Entree non valide. Veuillez entrer 1 (Oui) ou 2 (Non) : ");
+//                     while (getchar() != '\n');  
+//                 }
+                
+//                 if (note_choix == 1) {
+//                     printf("Entrez votre note : ");
+//                     getchar();
+//                     fgets(note, sizeof(note), stdin);
+//                     note[strcspn(note, "\n")] = '\0';  
+//                     strcpy(reclamations[claim_index].note, note);
+//                     printf("\n");
+//                 }
+                
+//                 switch (nouvelle_status) {
+//                     case 1:
+//                         strcpy(reclamations[claim_index].status, "resolu");
+//                         printf("La reclamation numero %d a ete resolue.\n", choix_reclamation);
+//                         isEnCours = 0;
+//                         DateDuMoment(nouvelle_Reclamation.date_Traitement_resolu);
+//                         break;
+//                     case 2:
+//                         strcpy(reclamations[claim_index].status, "rejecter");
+//                         printf("La reclamation numero %d a ete rejecter.\n", choix_reclamation);
+//                         isEnCours = 0;
+
+//                         break;
+//                 }
+                
+//                 if (note_choix == 1) {
+//                     printf("La note saisie : %s\n\n", note);
+//                 } else {
+//                     printf("Aucun note a ete saisie.\n\n");
+//                 }
+                
+//                 printf("\nLes reclamations encore en cours : \n");
+//                 afficherLesReclamations();
+//             } else {
+//                 printf("Numero de reclamation invalide. Veuillez reessayer.\n");
+//             }
+//         } else {
+//             printf("Entree invalide. Veuillez entrer un numero de reclamation valide ou '.' pour annuler.\n");
+//         }
+//     }
+//     isEnCours = 0;
+//     printf("%d",isEnCours);
+// }
+
 void TraiterReclamation() {
-    char annuler_choix[10];
     int choix_reclamation;
     int nouvelle_status;
     int note_choix;
     char note[150];
+    char continuer[10];
 
     printf("Traiter Les reclamations : \n\n");
 
-    isEnCours = 1;
-    afficherLesReclamations();
-       
-    getchar();
     while (1) {
-        printf("Entrez le numero de la reclamation que vous voulez Traiter ou entrez '.' pour annuler l'action : ");
-        fgets(annuler_choix, sizeof(annuler_choix), stdin);
-        annuler_choix[strcspn(annuler_choix, "\n")] = '\0';
-        
-        if (strcmp(annuler_choix, ".") == 0) {
-            printf("Action annulee.\n");
-            return;
+        // Afficher toutes les réclamations au début
+        printf("Liste de toutes les reclamations :\n");
+        for (int i = 0; i < reclamations_Conteur; i++) {
+            printf("%d. ID: %d, Status: %s, Description: %s, Note de Traitement : %s\n", 
+                   i + 1, reclamations[i].id, reclamations[i].status, reclamations[i].description,
+                   (strlen(reclamations[i].note) == 0 ? "-----" : reclamations[i].note));
         }
-        
-        if (sscanf(annuler_choix, "%d", &choix_reclamation) == 1) {
-            int valid_choice = 0;
-            int claim_index = -1;
-            for (int i = 0, j = 0; i < reclamations_Conteur; i++) {
-                if (strcmp(reclamations[i].status, "En Cours") == 0) {
-                    j++;
-                    if (j == choix_reclamation) {
-                        valid_choice = 1;
-                        claim_index = i;
-                        break;
-                    }
-                }
-            }
-            
-            if (valid_choice) {
-                printf("Entrez le nouveau statut de la reclamation 1 - Resolue, 2 - Rejecter : ");
-                while (scanf(" %d", &nouvelle_status) != 1 || (nouvelle_status != 1 && nouvelle_status != 2)) {
-                    printf("Statut non valide. Veuillez entrer 1 (Resolue) ou 2 (Rejecter) : ");
-                    while (getchar() != '\n');  
-                }
-                
-                printf("Voulez vous entrez une note sur le traitement 1 - Oui, 2 - Non : ");
-                while (scanf(" %d", &note_choix) != 1 || (note_choix != 1 && note_choix != 2)) {
-                    printf("Entree non valide. Veuillez entrer 1 (Oui) ou 2 (Non) : ");
-                    while (getchar() != '\n');  
-                }
-                
-                if (note_choix == 1) {
-                    printf("Entrez votre note : ");
-                    getchar();
-                    fgets(note, sizeof(note), stdin);
-                    note[strcspn(note, "\n")] = '\0';  
-                    strcpy(reclamations[claim_index].note, note);
-                    printf("\n");
-                }
-                
-                switch (nouvelle_status) {
-                    case 1:
-                        strcpy(reclamations[claim_index].status, "resolu");
-                        printf("La reclamation numero %d a ete resolue.\n", choix_reclamation);
-                        isEnCours = 0;
 
-                        break;
-                    case 2:
-                        strcpy(reclamations[claim_index].status, "rejecter");
-                        printf("La reclamation numero %d a ete rejecter.\n", choix_reclamation);
-                        isEnCours = 0;
-
-                        break;
-                }
-                
-                if (note_choix == 1) {
-                    printf("La note saisie : %s\n\n", note);
-                } else {
-                    printf("Aucun note a ete saisie.\n\n");
-                }
-                
-                printf("\nLes reclamations encore en cours : \n");
-                afficherLesReclamations();
-            } else {
-                printf("Numero de reclamation invalide. Veuillez reessayer.\n");
+        // Afficher uniquement les réclamations en cours
+        printf("\nReclamations en cours :\n");
+        int j = 1;
+        for (int i = 0; i < reclamations_Conteur; i++) {
+            if (strcmp(reclamations[i].status, "En Cours") == 0) {
+                printf("%d. ID: %d, Description: %s\n", 
+                       j++, reclamations[i].id, reclamations[i].description);
             }
+        }
+
+        printf("\nEntrez le numero de la reclamation que vous voulez traiter (0 pour quitter) : ");
+        if (scanf("%d", &choix_reclamation) != 1) {
+            printf("Entrée invalide. Veuillez entrer un nombre.\n");
+            while (getchar() != '\n'); // Vider le buffer
+            continue;
+        }
+
+        if (choix_reclamation == 0) {
+            printf("Retour au menu principal.\n");
+            break;
+        }
+
+        // Trouver la réclamation choisie
+        int claim_index = -1;
+        j = 1;
+        for (int i = 0; i < reclamations_Conteur; i++) {
+            if (strcmp(reclamations[i].status, "En Cours") == 0) {
+                if (j == choix_reclamation) {
+                    claim_index = i;
+                    break;
+                }
+                j++;
+            }
+        }
+
+        if (claim_index == -1) {
+            printf("Numéro de réclamation invalide ou la réclamation n'est pas en cours. Veuillez réessayer.\n");
+            continue;
+        }
+
+        printf("Entrez le nouveau statut de la reclamation (1 - Resolue, 2 - Rejetee) : ");
+        while (scanf("%d", &nouvelle_status) != 1 || (nouvelle_status != 1 && nouvelle_status != 2)) {
+            printf("Statut non valide. Veuillez entrer 1 (Resolue) ou 2 (Rejetee) : ");
+            while (getchar() != '\n');
+        }
+
+        printf("Voulez-vous entrer une note sur le traitement ? (1 - Oui, 2 - Non) : ");
+        while (scanf("%d", &note_choix) != 1 || (note_choix != 1 && note_choix != 2)) {
+            printf("Entree non valide. Veuillez entrer 1 (Oui) ou 2 (Non) : ");
+            while (getchar() != '\n');
+        }
+
+        if (note_choix == 1) {
+            printf("Entrez votre note : ");
+            getchar(); // Consommer le retour à la ligne restant
+            fgets(note, sizeof(note), stdin);
+            note[strcspn(note, "\n")] = '\0';
+            strcpy(reclamations[claim_index].note, note);
+        }
+
+        // Mettre à jour le statut de la réclamation
+        switch (nouvelle_status) {
+            case 1:
+                strcpy(reclamations[claim_index].status, "resolu");
+                DateDuMoment(reclamations[claim_index].date_Traitement_resolu);
+                printf("La reclamation numero %d a ete resolue.\n", choix_reclamation);
+                break;
+            case 2:
+                strcpy(reclamations[claim_index].status, "rejecter");
+                printf("La reclamation numero %d a ete rejetee.\n", choix_reclamation);
+                break;
+        }
+
+        if (note_choix == 1) {
+            printf("Note ajoutée : %s\n", reclamations[claim_index].note);
         } else {
-            printf("Entree invalide. Veuillez entrer un numero de reclamation valide ou '.' pour annuler.\n");
+            printf("Aucune note n'a été ajoutée.\n");
+        }
+
+        printf("\nVoulez-vous traiter une autre reclamation ? (oui/non) : ");
+        scanf("%s", continuer);
+        if (strcmp(continuer, "non") == 0) {
+            break;
         }
     }
-    isEnCours = 0;
-    printf("%d",isEnCours);
 }
+
+
 
 void miniscule(char *str) {
     for (int i = 0; str[i]; i++) {
@@ -647,25 +755,33 @@ void AjouterReclamation(){
 }
 
 void parseDateTime(const char* dateString, struct tm* tm) {
+    memset(tm, 0, sizeof(struct tm));  // Initialize the struct to zero
     sscanf(dateString, "%d-%d-%d %d:%d:%d",
            &tm->tm_year, &tm->tm_mon, &tm->tm_mday,
            &tm->tm_hour, &tm->tm_min, &tm->tm_sec);
     tm->tm_year -= 1900;  // Adjust year (years since 1900)
     tm->tm_mon -= 1;      // Adjust month (0-11)
+    tm->tm_isdst = -1;    // Let the system determine DST
 }
 
 
 int apres24Heures(const char* dateString) {
     struct tm tm = {0};
     time_t claimTime, currentTime;
+    
     // Parse the date string
     parseDateTime(dateString, &tm);
+    
     // Convert to time_t
     claimTime = mktime(&tm);
-    // Get current time
+    
     time(&currentTime);
-    // Check if the difference is greater than 86400 seconds (24 hours)
-    return difftime(currentTime, claimTime) > 86400;
+    
+    // Check if the difference is greater than 5 seconds
+    double diff = difftime(currentTime, claimTime);
+    printf("Debug: Time difference = %.2f seconds\n\n", diff);
+    // 86400 second / jour
+    return diff > 40.0;
 }
 
 int ReclamationPrecisDuClient(int valid_claims[]) {
@@ -674,8 +790,11 @@ int ReclamationPrecisDuClient(int valid_claims[]) {
     printf("Les reclamations pour l'utilisateur %s sont : \n", users[user_Index].name_User);
     for (int i = 0; i < reclamations_Conteur; i++) {
         if (strcmp(reclamations[i].name_utilisateur, users[user_Index].name_User) == 0) {
-            if (!apres24Heures(reclamations[i].date) && strcmp(reclamations[i].status, "En Cours") == 0) {
+            int is_after_24_hours = apres24Heures(reclamations[i].date);
+            printf("Reclamation %d - Date: %s\n", i, reclamations[i].date);
+            printf("Is after 24 hours (40 seconds)? %s\n\n", is_after_24_hours ? "Yes" : "No");
 
+            if (!is_after_24_hours && strcmp(reclamations[i].status, "En Cours") == 0) {
                 valid_claims[Index_reclamation_utilisateur] = i;
                 Index_reclamation_utilisateur++;
 
@@ -686,12 +805,14 @@ int ReclamationPrecisDuClient(int valid_claims[]) {
                 printf("- Statut: %s\n", reclamations[i].status);
                 printf("- Date: %s\n", reclamations[i].date);
                 printf("==========================================\n\n");
-            }
+            } 
         }
     }
+    
     if (Index_reclamation_utilisateur == 0) {
         printf("Aucune reclamation trouvee pour cet utilisateur.\n");
-    }
+    } 
+    
     return Index_reclamation_utilisateur;
 }
 
@@ -719,7 +840,7 @@ void ConsulterReclamation() {
             
             int action_choice;
             scanf("%d", &action_choice);
-            getchar();  // Clear the input buffer
+            getchar();  
             
             switch (action_choice) {
                 case 1:
@@ -727,8 +848,9 @@ void ConsulterReclamation() {
                     char new_description[100];
                     fgets(new_description, sizeof(new_description), stdin);
                     
-                    // Remove newline character if present
+                    
                     size_t len = strlen(new_description);
+
                     if (len > 0 && new_description[len-1] == '\n') {
                         new_description[len-1] = '\0';
                     }
@@ -746,7 +868,6 @@ void ConsulterReclamation() {
                     char confirm;
                     scanf(" %c", &confirm);
                     if (confirm == 'O' || confirm == 'o') {
-                        // Shift all elements after the deleted one
                         for (int i = claim_index; i < reclamations_Conteur - 1; i++) {
                             reclamations[i] = reclamations[i + 1];
                         }
@@ -849,7 +970,7 @@ void RechercheUneReclamations() {
                         found = 1;
                     }
                 }
-                break;
+            break;
             case 2:
                 printf("Entrez la Categorie de la Reclamation (Financier - Technique - Service - Autre) : ");
                 scanf(" %s", recherche_Categorie);
@@ -860,7 +981,7 @@ void RechercheUneReclamations() {
                         found = 1;
                     }
                 }
-                break;
+            break;
             case 3:
                 printf("Entrez le nom du Client : ");
                 scanf(" %s", recherche_Name_Utilisateur);
@@ -872,7 +993,7 @@ void RechercheUneReclamations() {
                         found = 1;
                     }
                 }
-                break;
+            break;
             case 4:
                 printf("Entrez le Status de la Reclamation (En Cours - Resolu - Rejecte) : ");
                 scanf(" %s", recherche_Status);
@@ -884,22 +1005,24 @@ void RechercheUneReclamations() {
                         found = 1;
                     }
                 }
-                break;
+            break;
             case 5:
                 printf("Entrez la Date de la Reclamation (format YYYY-MM-DD): ");
                 scanf(" %s", recherche_Date);
                 getchar();
-
                 for (int i = 0; i < reclamations_Conteur; i++) {
-                    if (strcmp(reclamations[i].date, recherche_Date) == 0) {
+                    char date_part[11];
+                    strncpy(date_part, reclamations[i].date, 10);
+                    date_part[10] = '\0';  // Null-terminate the string
+                    if (strcmp(date_part, recherche_Date) == 0) {
                         print_reclamation(i);
                         found = 1;
                     }
                 }
-                break;
+            break;
             case 6:
                 printf("Au revoir !\n");
-                return; 
+            return; 
         }
 
         if (found) {
@@ -976,18 +1099,22 @@ void MenuAgent(){
 
     do{
         printf("=========== Menu ===========\n");
-        printf("1 - Gerer les reclamations \t 2 - Traiter les reclamations \t 3 - Quittez \n");
+        printf("1 - Gerer les reclamations \t 2 - Traiter les reclamations \t 3 -  - Recherche d'une Reclamation. \n");
+        printf("4 - Quittez.\n");
         printf("Quelle est votre choix : ");
         scanf(" %d",&choix_Menu_Agent);
-        if(choix_Menu_Agent  < 1 || choix_Menu_Agent > 3 ){
-            printf("Veuillez choisir un choix valide entre 1 - 3.\n");
+        getchar();
+        if(choix_Menu_Agent  < 1 || choix_Menu_Agent > 4 ){
+            printf("Veuillez choisir un choix valide entre 1 - 4.\n");
         }
-    }while (choix_Menu_Agent  < 1 || choix_Menu_Agent > 3);
+    }while (choix_Menu_Agent  < 1 || choix_Menu_Agent > 4);
 
     if(choix_Menu_Agent == 1){
         GestionReclamations();
     }else if(choix_Menu_Agent == 2){
         TraiterReclamation();
+    }else if(choix_Menu_Agent == 3){
+        RechercheUneReclamations();
     }
 
 }
@@ -1001,6 +1128,7 @@ void  MenuUtilisateur() {
         printf("1 - Ajouter une reclamation \t 2 - Consulter tes reclamations \t 3 - Quittez \n");
         printf("Quelle est votre choix : ");
         scanf(" %d",&choix_Menu_utilisateur);
+        getchar();
         if(choix_Menu_utilisateur  < 1 || choix_Menu_utilisateur > 3 ){
             printf("Veuillez choisir un choix valide entre 1 -3.\n");
         }
