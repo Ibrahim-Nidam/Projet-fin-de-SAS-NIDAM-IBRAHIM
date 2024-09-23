@@ -5,6 +5,7 @@
 #include <math.h> // Mathematical library Provides mathematical functions for performing calculations:sqrt - pow - ceil - floor
 #include <time.h> // Time library Contains functions for working with time and dates:time - localtime
 #include <unistd.h> // POSIX Standard Library Provides access to the operating system's POSIX API, including: sleep: pauses the execution of the program 
+#include <ctype.h>
 
 #define MAX_UTILISATEUR 20
 #define MAX_RECLAMATION 10
@@ -556,8 +557,18 @@ void TraiterReclamation() {
     printf("%d",isEnCours);
 }
 
+void miniscule(char *str) {
+    for (int i = 0; str[i]; i++) {
+        str[i] = tolower((unsigned char)str[i]);
+    }
+}
+
 void AjouterReclamation(){
     int categorie_choix;
+    char *high[] = {"urgent", "critique", "importante"};
+    char *moyen[] = {"asap", "modere", "rapide"};
+    char miniscule_description[100], miniscule_motif[50];
+    int trouver_high = 0, trouver_moyen = 0;
     
     printf("Adding claim for user: %s (index: %d)\n", users[user_Index].name_User, user_Index);  // Debug print
 
@@ -593,13 +604,41 @@ void AjouterReclamation(){
     printf("Entrez le Motif du reclamation : ");
     getchar(); 
     fgets(nouvelle_Reclamation.motif, sizeof(nouvelle_Reclamation.motif), stdin);
-
+    nouvelle_Reclamation.motif[strcspn(nouvelle_Reclamation.motif, "\n")] = 0;
+    
     printf("Entrez la description du reclamation : ");
-    getchar(); 
+    // getchar(); 
     fgets(nouvelle_Reclamation.description, sizeof(nouvelle_Reclamation.description), stdin);
+    nouvelle_Reclamation.description[strcspn(nouvelle_Reclamation.description, "\n")] = 0; // Remove newline
 
     strcpy(nouvelle_Reclamation.status, "En Cours");
-    strcpy(nouvelle_Reclamation.priorite, "Base");
+
+    strcpy(miniscule_description, nouvelle_Reclamation.description);
+    strcpy(miniscule_motif, nouvelle_Reclamation.motif);
+    miniscule(miniscule_description);
+    miniscule(miniscule_motif);
+    
+    for (int i = 0; i < sizeof(high) / sizeof(high[0]); i++) {
+        if (strstr(miniscule_description, high[i]) != NULL || strstr(miniscule_motif, high[i]) != NULL) {
+            trouver_high = 1;
+            break;
+        }
+    }
+    if (!trouver_high) {
+        for (int i = 0; i < sizeof(moyen) / sizeof(moyen[0]); i++) {
+            if (strstr(miniscule_description, moyen[i]) != NULL || strstr(miniscule_motif, moyen[i]) != NULL) {
+                trouver_moyen = 1;
+                break;
+            }
+        }
+    }
+    if (trouver_high) {
+        strcpy(nouvelle_Reclamation.priorite, "High");
+    } else if (trouver_moyen) {
+        strcpy(nouvelle_Reclamation.priorite, "Moyen");
+    } else {
+        strcpy(nouvelle_Reclamation.priorite, "Basse");
+    }
 
     reclamations[reclamations_Conteur++] = nouvelle_Reclamation;
 
@@ -731,9 +770,44 @@ void ConsulterReclamation() {
         }
     }
 }
-void OrdreParPriorite(){
+
+void print_reclamation(int i){
+
+    printf("- Reclamation ID: %s ", reclamations[i].id);
+    printf("- Categorie: %s ", reclamations[i].categorie);
+    printf("- Motif: %s\n", reclamations[i].motif);
+    printf("- Description: %s\n", reclamations[i].description);
+    printf("- Statut: %s\n", reclamations[i].status);
+    printf("- Date: %s\n", reclamations[i].date);
+    printf("- Priorite: %s\n", reclamations[i].priorite);
+    printf("- Client : %s\n",reclamations[i].name_utilisateur);
+    printf("==========================================\n\n");
+}
+
+void OrdreParPriorite() {
+    
+
+    // Print all reclamations sorted by priority
+    for (int i = 0; i < reclamations_Conteur; i++) {
+        if (strcmp(reclamations[i].priorite, "High") == 0) {
+            print_reclamation(i);
+        }
+    }
+    for (int i = 0; i < reclamations_Conteur; i++) {
+        if (strcmp(reclamations[i].priorite, "Moyen") == 0) {
+            print_reclamation(i);
+        }
+    }
+    for (int i = 0; i < reclamations_Conteur; i++) {
+        if (strcmp(reclamations[i].priorite, "Basse") == 0) {
+            print_reclamation(i);
+        }
+    }
+}
+void RechercheUneReclamations(){
 
 }
+
 
 void MenuAdministrateur(){
     int choix_Menu_Administrateur = 0;
@@ -744,13 +818,13 @@ void MenuAdministrateur(){
         printf("1 - Gestion des  utilisateurs.\t          2 - Gestion des Reclamations.\n");
         printf("3 - Attribue les roles.\t                  4 - Traiter les reclamations.\n");
         printf("5 - Generation des Statistiques. \t  6 - Afficher les réclamations ordonnées par priorite\n");
-        printf("7 - Quittez\n");
+        printf("7 - Recherche d'une Reclamation. \n8 - Quittez\n");
         printf("Quelle est votre choix : ");
         scanf(" %d",&choix_Menu_Administrateur);
         printf("\n");
 
-        if(choix_Menu_Administrateur  < 1 || choix_Menu_Administrateur > 7 ){
-            printf("Veuillez choisir un choix valide entre 1 - 7.\n");
+        if(choix_Menu_Administrateur  < 1 || choix_Menu_Administrateur > 8 ){
+            printf("Veuillez choisir un choix valide entre 1 - 8.\n");
             continue;
         }
 
@@ -774,13 +848,16 @@ void MenuAdministrateur(){
                 OrdreParPriorite();
                 break;
             case 7:
+                RechercheUneReclamations();
+                break;
+            default:
                 printf("Au revoir.\n");
                 break;
+
         }
 
-    }while (choix_Menu_Administrateur != 7);
+    }while (choix_Menu_Administrateur != 8);
 }
-
 void MenuAgent(){
     int choix_Menu_Agent = 0;
 

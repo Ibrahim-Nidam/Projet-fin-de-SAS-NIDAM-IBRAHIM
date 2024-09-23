@@ -42,8 +42,8 @@
    - **Rechercher une réclamation**
      - Criteria: ID, nom du client, date, statut, catégorie
    - **Système de priorité**
-     - Attribuer priorité (basse, moyenne, haute)
-     - Afficher réclamations par priorité (accessible aux administrateurs)
+     - Attribuer priorité (basse, moyenne, haute)✅
+     - Afficher réclamations par priorité (accessible aux administrateurs)✅
 
 ---
 
