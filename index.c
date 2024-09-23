@@ -804,8 +804,119 @@ void OrdreParPriorite() {
         }
     }
 }
-void RechercheUneReclamations(){
+void RechercheUneReclamations() {
+    int choix_recherche = 0;
+    char recherche_Id[20];
+    char recherche_Categorie[30];
+    char recherche_Name_Utilisateur[20];
+    char recherche_Date[20];
+    char recherche_Status[10];
 
+    do {
+        printf("Voici les Reclamations : \n\n");
+
+        for (int i = 0; i < reclamations_Conteur; i++) {
+            print_reclamation(i);
+        }
+
+        printf("Veuillez entrer le choix de recherche de la reclamation que vous souhaitez utiliser : \n");
+        printf("1 - Recherche par ID\n");
+        printf("2 - Recherche par Categorie\n");
+        printf("3 - Recherche par Nom du Client\n");
+        printf("4 - Recherche par Status\n");
+        printf("5 - Recherche par Date\n");
+        printf("6 - Quitter\n");
+
+        scanf(" %d", &choix_recherche);
+        getchar();
+
+        if (choix_recherche < 1 || choix_recherche > 6) {
+            printf("Veuillez choisir un choix valide entre 1 - 6.\n");
+            continue;
+        }
+
+        int found = 0; 
+
+        switch (choix_recherche) {
+            case 1:
+                printf("Entrez l'id de la Reclamation : ");
+                scanf(" %s", recherche_Id);
+                getchar();
+
+                for (int i = 0; i < reclamations_Conteur; i++) {
+                    if (strcmp(reclamations[i].id, recherche_Id) == 0) {
+                        print_reclamation(i);
+                        found = 1;
+                    }
+                }
+                break;
+            case 2:
+                printf("Entrez la Categorie de la Reclamation (Financier - Technique - Service - Autre) : ");
+                scanf(" %s", recherche_Categorie);
+                getchar();
+                for (int i = 0; i < reclamations_Conteur; i++) {
+                    if (strcmp(reclamations[i].categorie, recherche_Categorie) == 0) {
+                        print_reclamation(i);
+                        found = 1;
+                    }
+                }
+                break;
+            case 3:
+                printf("Entrez le nom du Client : ");
+                scanf(" %s", recherche_Name_Utilisateur);
+                getchar();
+
+                for (int i = 0; i < reclamations_Conteur; i++) {
+                    if (strcmp(reclamations[i].name_utilisateur, recherche_Name_Utilisateur) == 0) {
+                        print_reclamation(i);
+                        found = 1;
+                    }
+                }
+                break;
+            case 4:
+                printf("Entrez le Status de la Reclamation (En Cours - Resolu - Rejecte) : ");
+                scanf(" %s", recherche_Status);
+                getchar();
+
+                for (int i = 0; i < reclamations_Conteur; i++) {
+                    if (strcmp(reclamations[i].status, recherche_Status) == 0) {
+                        print_reclamation(i);
+                        found = 1;
+                    }
+                }
+                break;
+            case 5:
+                printf("Entrez la Date de la Reclamation (format YYYY-MM-DD): ");
+                scanf(" %s", recherche_Date);
+                getchar();
+
+                for (int i = 0; i < reclamations_Conteur; i++) {
+                    if (strcmp(reclamations[i].date, recherche_Date) == 0) {
+                        print_reclamation(i);
+                        found = 1;
+                    }
+                }
+                break;
+            case 6:
+                printf("Au revoir !\n");
+                return; 
+        }
+
+        if (found) {
+            char choix;
+            printf("Voulez-vous chercher à nouveau ? (o/n) : ");
+            scanf(" %c", &choix);
+            getchar(); 
+
+            if (choix == 'n' || choix == 'N') {
+                printf("Retour au menu principal.\n");
+                break; 
+            }
+        } else {
+            printf("Aucune reclamation trouvée pour cette recherche.\n");
+        }
+
+    } while (1); 
 }
 
 
