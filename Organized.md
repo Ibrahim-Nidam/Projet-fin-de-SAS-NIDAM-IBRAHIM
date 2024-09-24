@@ -10,19 +10,19 @@
 
 2. **Gestion des utilisateurs**
    - **Sign Up**
-     - Input: Identifiant, Mot de passe, Informations pertinentes ✅
+     - Input: Identifiant, Mot de passe, Informations pertinentes ✅✅
      - Constraints: 
-       - Longueur min: 8 caractères ✅
-       - Contient: 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial ✅
-       - Ne doit pas contenir le nom d'utilisateur ✅
+       - Longueur min: 8 caractères ✅✅
+       - Contient: 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial ✅✅
+       - Ne doit pas contenir le nom d'utilisateur ✅✅
    - **Sign In**
-     - Input: Identifiant, Mot de passe ✅
-     - Action: Authentification ✅
-     - Lock Account: After failed attempts ✅
+     - Input: Identifiant, Mot de passe ✅✅
+     - Action: Authentification ✅✅
+     - Lock Account: After failed attempts ✅✅
    - **Gérer les rôles des utilisateurs**
      - Rôles: Administrateur, Agent de Réclamation, Client✅
-       - **Administrateur**: Accès complet✅
-       - **Agent de Réclamation**: Gère les réclamations ✅
+       - **Administrateur**: Accès complet✅✅
+       - **Agent de Réclamation**: Gère les réclamations ✅✅
        - **Client**: Soumet et consulte ses réclamations ✅
 
 ---

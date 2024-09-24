@@ -631,6 +631,13 @@ void GenerationStatistiques() {
     int resolution_Conteur = 0; // Compteur pour le nombre de réclamations résolues
     double total_time = 0; // Temps total de traitement des réclamations résolues
 
+    // Check if there are no reclamations
+    if (reclamations_Conteur == 0) {
+        printf("Aucune reclamation se trouve pour le moment.\n");
+        return; // Exit la fonction 
+    }
+    
+
     printf("Nombre total de reclamations : %d\n", reclamations_Conteur);
 
     // Parcourt toutes les réclamations
@@ -688,6 +695,11 @@ void TraiterReclamation() {
 
     printf("Traiter Les reclamations : \n\n");
 
+    // Check if there are no reclamations
+    if (reclamations_Conteur == 0) {
+        printf("Aucune reclamation se trouve pour le moment.\n");
+        return; // Exit la fonction 
+    }
     while (1) {
         // Affiche toutes les réclamations
         printf("Liste de toutes les reclamations :\n");
@@ -905,7 +917,7 @@ int apres24Heures(const char* dateString) {
     printf("Debug: Time difference = %.2f seconds\n\n", diff); // Affiche la différence de temps pour le débogage
 
     // Vérifie si la différence est supérieure à 86400 secondes (24 heures)
-    return diff > 86400.0; // Retourne vrai si plus de 24 heures se sont écoulées
+    return diff > 40; // Retourne vrai si plus de 24 heures se sont écoulées
 }
 
 
@@ -923,7 +935,7 @@ int ReclamationPrecisDuClient(int valid_claims[]) {
             int is_after_24_hours = apres24Heures(reclamations[i].date);
 
             // Affiche la date de la réclamation
-            printf("Reclamation %d - Date: %s\n", i, reclamations[i].date);
+            printf("Reclamation %d - Date: %s\n", i+1, reclamations[i].date);
             // Indique si la réclamation a été faite il y a plus de 24 heures
             printf("Is after 24 hours (40 seconds)? %s\n\n", is_after_24_hours ? "Oui" : "Non");
 
@@ -959,6 +971,12 @@ void ConsulterReclamation() {
     int choix_Consultation_reclamation = 0; // Variable pour stocker le choix de l'utilisateur
     int num_valid_claims; // Nombre de réclamations valides
     int valid_claims[MAX_RECLAMATION]; // Tableau pour stocker les indices des réclamations valides
+
+    // Check if there are no reclamations
+    if (reclamations_Conteur == 0) {
+        printf("Aucune reclamation se trouve pour le moment.\n");
+        return; // Exit la fonction 
+    }
     
     // Appel de la fonction pour obtenir les réclamations de l'utilisateur
     num_valid_claims = ReclamationPrecisDuClient(valid_claims);
@@ -1062,6 +1080,13 @@ void print_reclamation(int i) {
 
 
 void OrdreParPriorite() {
+
+     // Check if there are no reclamations
+    if (reclamations_Conteur == 0) {
+        printf("Aucune reclamation se trouve pour le moment.\n");
+        return; // Exit la fonction 
+    }
+
     // Affiche les réclamations avec priorité "High"
     for (int i = 0; i < reclamations_Conteur; i++) {
         if (strcmp(reclamations[i].priorite, "High") == 0) {
@@ -1089,6 +1114,12 @@ void RechercheUneReclamations() {
     char recherche_Name_Utilisateur[20];
     char recherche_Date[20];
     char recherche_Status[10];
+
+    // Check if there are no reclamations
+    if (reclamations_Conteur == 0) {
+        printf("Aucune reclamation se trouve pour le moment.\n");
+        return; // Exit la fonction 
+    }
 
     do {
         printf("Voici les Reclamations : \n\n");
@@ -1340,7 +1371,7 @@ void logOut() {
     isSignedIn = 0; // Indique que l'utilisateur est déconnecté
     isAdmin = 0;    // Réinitialise le statut d'administrateur
     isAgent = 0;    // Réinitialise le statut d'agent
-    printf("Vous êtes déconnecté.\n\n"); // Affiche un message de déconnexion
+    printf("Vous etes deconnecte.\n\n"); // Affiche un message de déconnexion
 }
 
 
@@ -1354,7 +1385,7 @@ void MenuPrincipal() {
         }
         if (isSignedIn) {
             // Affiche les options pour les utilisateurs connectés
-            printf("1 - Accéder au Menu en fonction de votre rôle.\n");
+            printf("1 - Acceder au Menu en fonction de votre role.\n");
             printf("2 - Log Out.\n\n");
         }
 
