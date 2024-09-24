@@ -1,17 +1,16 @@
-Rapport Quotidien des Reclamations
+Rapport Quotidien des Réclamations
 =================================
 
-Nombre total de reclamations : 5
-Taux de resolution des reclamations : 40.00%
+Nombre total de réclamations : 3
+Taux de resolution des réclamations : 33.33%
+Delai moyen de traitement des reclamations resolues : 36.00 secondes
 =================================
 
 Nouvelles Réclamations:
-ID: UaPhs7h3h7F7aPWwFaK, Categorie: Technique, Motif: ogzoh dahdo hazohdia, Description: fo hzefhoez ohifhoiezh, Date: 2024-09-24 09:23:11
-ID: aLLlRvKv8MkGqrWCq2Y, Categorie: Service, Motif: ogf azgfogazogfgazogfoza, Description: foezg fgeozgfgoezfoh foh, Date: 2024-09-24 09:23:17
+
+2 - ID: IRYW2224hr5IT9K4jro, Catégorie: technique, Motif: oeuf ohezofhoeihfoihz, Description: eofug zehfoh ezoi hfoiz, Date: 2024-09-24 14:53:34
+3 - ID: MCaArgcFsQ7RCoxxpK8, Catégorie: service, Motif: zohdo hazoih dazohidohazoih d, Description: fezohfehz fhezohfoezhoifh, Date: 2024-09-24 14:53:46
 
 Réclamations Résolues:
-ID: OADzWLDEc6pjdkiW3pt, Categorie: Financier, Motif: dohaz ohoazh hazoihdo, Description: fpih ezohfoezhofhzehof, Date de Resolution: 2024-09-24 09:24:00
-ID: W8cJnm8bwIJ8diauvnF, Categorie: Autre, Motif: fgiuz egfgzeig fuigezigfiz, Description: foz ehfhzeoih fozheohfozieh, Date de Resolution: 2024-09-24 09:24:08
 
-Réclamations Rejetées:
-ID: WiiEbBU9850Mopb1Z8c, Categorie: Autre, Motif: eouzgf ogzeogf oezg ogfezog, Description: f ozegfg zeohofh zehofh z, Date de Rejet: 
+1 - ID: yGm9bikL6a0kBvTnDIV, Catégorie: financier, Motif: foeug ohezofh oiezho, Description: foeh hfezh fiohezohfoz, Date de Resolution: 2024-09-24 14:54:04
