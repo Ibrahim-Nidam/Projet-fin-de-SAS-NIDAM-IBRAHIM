@@ -1,0 +1,17 @@
+Rapport Quotidien des Reclamations
+=================================
+
+Nombre total de reclamations : 5
+Taux de resolution des reclamations : 40.00%
+=================================
+
+Nouvelles Réclamations:
+ID: UaPhs7h3h7F7aPWwFaK, Categorie: Technique, Motif: ogzoh dahdo hazohdia, Description: fo hzefhoez ohifhoiezh, Date: 2024-09-24 09:23:11
+ID: aLLlRvKv8MkGqrWCq2Y, Categorie: Service, Motif: ogf azgfogazogfgazogfoza, Description: foezg fgeozgfgoezfoh foh, Date: 2024-09-24 09:23:17
+
+Réclamations Résolues:
+ID: OADzWLDEc6pjdkiW3pt, Categorie: Financier, Motif: dohaz ohoazh hazoihdo, Description: fpih ezohfoezhofhzehof, Date de Resolution: 2024-09-24 09:24:00
+ID: W8cJnm8bwIJ8diauvnF, Categorie: Autre, Motif: fgiuz egfgzeig fuigezigfiz, Description: foz ehfhzeoih fozheohfozieh, Date de Resolution: 2024-09-24 09:24:08
+
+Réclamations Rejetées:
+ID: WiiEbBU9850Mopb1Z8c, Categorie: Autre, Motif: eouzgf ogzeogf oezg ogfezog, Description: f ozegfg zeohofh zehofh z, Date de Rejet: 

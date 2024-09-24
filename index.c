@@ -1,7 +1,6 @@
 #include <stdio.h> // Standard Input/Output library Contains functions for input and output, including:printf - scanf  - fgets
 #include <stdlib.h> // Standard Library Provides functions for memory allocation, process control, and conversions:rand - srand - malloc
 #include <string.h>  // String handling library Contains functions for manipulating C strings:strcpy - strlen - strstr - strcmp
-#include <math.h> // Mathematical library Provides mathematical functions for performing calculations:sqrt - pow - ceil - floor
 #include <time.h> // Time library Contains functions for working with time and dates:time - localtime
 #include <unistd.h> // POSIX Standard Library Provides access to the operating system's POSIX API, including: sleep: pauses the execution of the program 
 #include <ctype.h>
@@ -27,6 +26,7 @@ typedef struct{
     char note[150];
     char name_utilisateur[20];
     char date_Traitement_resolu[20];
+    char date_Traitement_rejecter[20];
 }Reclamation;
 
 User users[MAX_UTILISATEUR];
@@ -115,7 +115,6 @@ int checkPassword(char utilisateur[20], char password_Utilisateur[20]) {
 
 int UserCheck (char utilisateur[20], char password_Utilisateur[20]){
     for (int i = 0; i < user_Conteur ; i++){
-        // printf("Checking user: %s, Password: %s\n", users[i].name_User, users[i].password_User); // Debugging
         if(strcmp(users[i].name_User, utilisateur) == 0 && strcmp(users[i].password_User,password_Utilisateur) == 0){
                 return i;
             }
@@ -189,7 +188,6 @@ void MenuSignIn() {
             }
         }
     }
-    // printf("Current user: %s, user index : %d\n", users[user_Index].name_User,user_Index);
 
     isSignedIn = 1;
     password_Incorrect_Conteur = 0; 
@@ -454,9 +452,60 @@ void parseDateTime(const char* dateString, struct tm* tm) {
     tm->tm_isdst = -1;    // Let the system determine DST
 }
 
+void GenererRapportQuotidien(float Ratio_Resolution) {
+    FILE *file = fopen("rapport_quotidien.txt", "w");
+    if (!file) {
+        printf("Erreur lors de la création du fichier.\n");
+        return;
+    }
+
+
+    fprintf(file, "Rapport Quotidien des Réclamations\n");
+    fprintf(file, "=================================\n\n");
+    
+    fprintf(file,"Nombre total de réclamations : %d\n", reclamations_Conteur);
+    fprintf(file,"Taux de resolution des réclamations : %.2f%%\n", Ratio_Resolution);
+
+    fprintf(file, "=================================\n\n");
+
+
+    fprintf(file, "Nouvelles Réclamations:\n\n");
+    for (int i = 0; i < reclamations_Conteur; i++) {
+        if (strcmp(reclamations[i].status, "En Cours") == 0) {
+            fprintf(file, "%d - ID: %s, Catégorie: %s, Motif: %s, Description: %s, Date: %s\n",i+1,
+                    reclamations[i].id, reclamations[i].categorie, 
+                    reclamations[i].motif, reclamations[i].description,
+                    reclamations[i].date);
+        }
+    }
+
+    fprintf(file, "\nRéclamations Résolues:\n\n");
+    for (int i = 0; i < reclamations_Conteur; i++) {
+        if (strcmp(reclamations[i].status, "resolu") == 0) {
+            fprintf(file, "%d - ID: %s, Catégorie: %s, Motif: %s, Description: %s, Date de Resolution: %s\n",i+1,
+                    reclamations[i].id, reclamations[i].categorie, 
+                    reclamations[i].motif, reclamations[i].description,
+                    reclamations[i].date_Traitement_resolu);
+        }
+    }
+
+    fprintf(file, "\nRéclamations Rejectées:\n\n");
+    for (int i = 0; i < reclamations_Conteur; i++) {
+        if (strcmp(reclamations[i].status, "rejecter") == 0) {
+            fprintf(file, "%d - ID: %s, Catégorie: %s, Motif: %s, Description: %s, Date de Rejet: %s\n",i+1,
+                    reclamations[i].id, reclamations[i].categorie, 
+                    reclamations[i].motif, reclamations[i].description,
+                    reclamations[i].date_Traitement_rejecter);
+        }
+    }
+
+    fclose(file);
+    printf("Rapport quotidien genere avec succes.\n");
+}
+
 void GenerationStatistiques() {
     int resolution_Conteur = 0;
-    double total_time = 0; // Total processing time for resolved claims
+    double total_time = 0; 
 
     printf("Nombre total de reclamations : %d\n", reclamations_Conteur);
 
@@ -467,7 +516,6 @@ void GenerationStatistiques() {
             struct tm tm_creation = {0}, tm_resolution = {0};
             time_t claimTime, resolutionTime;
 
-            // Parse the creation and resolution dates
             parseDateTime(reclamations[i].date, &tm_creation);
             parseDateTime(reclamations[i].date_Traitement_resolu, &tm_resolution);
 
@@ -490,11 +538,12 @@ void GenerationStatistiques() {
     printf("Taux de resolution des reclamations : %.2f%%\n", Ratio_Resolution);
 
     if (resolution_Conteur > 0) {
-        double moyenne = total_time / resolution_Conteur; // Average in seconds
+        double moyenne = total_time / resolution_Conteur; 
         printf("Delai moyen de traitement des reclamations resolues : %.2f secondes\n", moyenne);
     } else {
         printf("Aucune reclamation resolue pour le calcul du delai.\n");
     }
+    GenererRapportQuotidien(Ratio_Resolution);
 }
 
 void TraiterReclamation() {
@@ -507,7 +556,7 @@ void TraiterReclamation() {
     printf("Traiter Les reclamations : \n\n");
 
     while (1) {
-        // Afficher toutes les réclamations au début
+
         printf("Liste de toutes les reclamations :\n");
         for (int i = 0; i < reclamations_Conteur; i++) {
             printf("%d. ID: %d, Status: %s, Description: %s, Note de Traitement : %s\n", 
@@ -515,7 +564,7 @@ void TraiterReclamation() {
                    (strlen(reclamations[i].note) == 0 ? "-----" : reclamations[i].note));
         }
 
-        // Afficher uniquement les réclamations en cours
+
         printf("\nReclamations en cours :\n");
         int j = 1;
         for (int i = 0; i < reclamations_Conteur; i++) {
@@ -528,7 +577,7 @@ void TraiterReclamation() {
         printf("\nEntrez le numero de la reclamation que vous voulez traiter (0 pour quitter) : ");
         if (scanf("%d", &choix_reclamation) != 1) {
             printf("Entrée invalide. Veuillez entrer un nombre.\n");
-            while (getchar() != '\n'); // Vider le buffer
+            while (getchar() != '\n'); 
             continue;
         }
 
@@ -537,7 +586,7 @@ void TraiterReclamation() {
             break;
         }
 
-        // Trouver la réclamation choisie
+        
         int claim_index = -1;
         j = 1;
         for (int i = 0; i < reclamations_Conteur; i++) {
@@ -569,13 +618,13 @@ void TraiterReclamation() {
 
         if (note_choix == 1) {
             printf("Entrez votre note : ");
-            getchar(); // Consommer le retour à la ligne restant
+            getchar(); 
             fgets(note, sizeof(note), stdin);
             note[strcspn(note, "\n")] = '\0';
             strcpy(reclamations[claim_index].note, note);
         }
 
-        // Mettre à jour le statut de la réclamation
+        
         switch (nouvelle_status) {
             case 1:
                 strcpy(reclamations[claim_index].status, "resolu");
@@ -584,6 +633,7 @@ void TraiterReclamation() {
                 break;
             case 2:
                 strcpy(reclamations[claim_index].status, "rejecter");
+                DateDuMoment(reclamations[claim_index].date_Traitement_rejecter);
                 printf("La reclamation numero %d a ete rejecter.\n", choix_reclamation);
                 break;
         }
@@ -594,9 +644,9 @@ void TraiterReclamation() {
             printf("Aucune note n'a ete ajoutee.\n");
         }
 
-        printf("\nVoulez-vous traiter une autre reclamation ? (oui/non) : ");
+        printf("\nVoulez-vous traiter une autre reclamation ? (o/n) : ");
         scanf("%s", continuer);
-        if (strcmp(continuer, "non") == 0) {
+        if (strcmp(continuer, "n") == 0) {
             break;
         }
     }
@@ -617,8 +667,6 @@ void AjouterReclamation(){
     char miniscule_description[100], miniscule_motif[50];
     int trouver_high = 0, trouver_moyen = 0;
     
-    printf("Adding claim for user: %s (index: %d)\n", users[user_Index].name_User, user_Index);  // Debug print
-
     generateRandomID(nouvelle_Reclamation.id);
     DateDuMoment(nouvelle_Reclamation.date);
 
@@ -654,9 +702,8 @@ void AjouterReclamation(){
     nouvelle_Reclamation.motif[strcspn(nouvelle_Reclamation.motif, "\n")] = 0;
     
     printf("Entrez la description du reclamation : ");
-    // getchar(); 
     fgets(nouvelle_Reclamation.description, sizeof(nouvelle_Reclamation.description), stdin);
-    nouvelle_Reclamation.description[strcspn(nouvelle_Reclamation.description, "\n")] = 0; // Remove newline
+    nouvelle_Reclamation.description[strcspn(nouvelle_Reclamation.description, "\n")] = 0; 
 
     strcpy(nouvelle_Reclamation.status, "En Cours");
 
@@ -700,15 +747,12 @@ int apres24Heures(const char* dateString) {
     struct tm tm = {0};
     time_t claimTime, currentTime;
     
-    // Parse the date string
     parseDateTime(dateString, &tm);
     
-    // Convert to time_t
     claimTime = mktime(&tm);
     
     time(&currentTime);
     
-    // Check if the difference is greater than 5 seconds
     double diff = difftime(currentTime, claimTime);
     printf("Debug: Time difference = %.2f seconds\n\n", diff);
     // 86400 second / jour
@@ -723,7 +767,7 @@ int ReclamationPrecisDuClient(int valid_claims[]) {
         if (strcmp(reclamations[i].name_utilisateur, users[user_Index].name_User) == 0) {
             int is_after_24_hours = apres24Heures(reclamations[i].date);
             printf("Reclamation %d - Date: %s\n", i, reclamations[i].date);
-            printf("Is after 24 hours (40 seconds)? %s\n\n", is_after_24_hours ? "Yes" : "No");
+            printf("Is after 24 hours (40 seconds)? %s\n\n", is_after_24_hours ? "Oui" : "Non");
 
             if (!is_after_24_hours && strcmp(reclamations[i].status, "En Cours") == 0) {
                 valid_claims[Index_reclamation_utilisateur] = i;
@@ -755,7 +799,7 @@ void ConsulterReclamation() {
     num_valid_claims = ReclamationPrecisDuClient(valid_claims);
     
     if (num_valid_claims > 0) {
-        printf("Entrez le numero de la reclamation que vous souhaitez modifier ou supprimer (1-%d) ou 0 pour revenir : ", num_valid_claims);
+        printf("Entrez le numero de la reclamation que vous souhaitez modifier ou supprimer (1 - %d) ou 0 pour revenir : ", num_valid_claims);
         scanf("%d", &choix_Consultation_reclamation);
         
         if (choix_Consultation_reclamation > 0 && choix_Consultation_reclamation <= num_valid_claims) {
@@ -838,8 +882,6 @@ void print_reclamation(int i){
 
 void OrdreParPriorite() {
     
-
-    // Print all reclamations sorted by priority
     for (int i = 0; i < reclamations_Conteur; i++) {
         if (strcmp(reclamations[i].priorite, "High") == 0) {
             print_reclamation(i);
@@ -958,7 +1000,7 @@ void RechercheUneReclamations() {
 
         if (found) {
             char choix;
-            printf("Voulez-vous chercher à nouveau ? (o/n) : ");
+            printf("Voulez-vous chercher a nouveau ? (o/n) : ");
             scanf(" %c", &choix);
             getchar(); 
 
@@ -973,7 +1015,6 @@ void RechercheUneReclamations() {
     } while (1); 
 }
 
-
 void MenuAdministrateur(){
     int choix_Menu_Administrateur = 0;
     
@@ -982,7 +1023,7 @@ void MenuAdministrateur(){
     do{
         printf("1 - Gestion des  utilisateurs.\t          2 - Gestion des Reclamations.\n");
         printf("3 - Attribue les roles.\t                  4 - Traiter les reclamations.\n");
-        printf("5 - Generation des Statistiques. \t  6 - Afficher les réclamations ordonnées par priorite\n");
+        printf("5 - Generation des Statistiques. \t  6 - Afficher les reclamations ordonnees par priorite\n");
         printf("7 - Recherche d'une Reclamation. \n8 - Quittez\n");
         printf("Quelle est votre choix : ");
         scanf(" %d",&choix_Menu_Administrateur);

@@ -4,7 +4,7 @@
 1. **Main Menu**
    - Gestion des utilisateurs✅
    - Gestion des réclamations✅
-   - Statistiques et Rapports
+   - Statistiques et Rapports✅
 
 ---
 
@@ -53,8 +53,8 @@
    - **Afficher le taux de résolution**
      - Access: Administrateurs ✅
    - **Calculer le délai moyen de traitement**
-     - Access: Administrateurs
+     - Access: Administrateurs✅
    - **Générer un rapport journalier**
-     - Liste: Nouvelles réclamations et celles résolues
+     - Liste: Nouvelles réclamations et celles résolues✅
 
 ---
