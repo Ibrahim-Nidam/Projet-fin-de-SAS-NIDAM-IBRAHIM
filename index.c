@@ -3,7 +3,7 @@
 #include <string.h>  // String handling library Contains functions for manipulating C strings:strcpy - strlen - strstr - strcmp
 #include <time.h> // Time library Contains functions for working with time and dates:time - localtime
 #include <unistd.h> // POSIX Standard Library Provides access to the operating system's POSIX API, including: sleep: pauses the execution of the program 
-#include <ctype.h>
+#include <ctype.h> // Character Type library Provides functions for testing and mapping characters: isalpha - isdigit - toupper - tolower
 
 #define MAX_UTILISATEUR 20
 #define MAX_RECLAMATION 10
@@ -75,7 +75,7 @@ void generateRandomID(char id[ID_LENGTH]) {
     }
     
     // Ajouter le caractère de fin de chaîne '\0' pour indiquer la fin de l'ID
-    id[ID_LENGTH - 1] = '\0'; 
+    id[ID_LENGTH - 1] = '\0';
 }
 
 
@@ -169,12 +169,10 @@ int UserCheck(char utilisateur[20], char password_Utilisateur[20]) {
         // Si le nom d'utilisateur et le mot de passe correspondent
         if (strcmp(users[i].name_User, utilisateur) == 0 && 
             strcmp(users[i].password_User, password_Utilisateur) == 0) {
-                
             // Retourne l'indice de l'utilisateur trouvé dans le tableau
             return i;
         }
     }
-
     // Si aucun utilisateur ne correspond, retourne -1
     return -1;
 }
@@ -244,8 +242,8 @@ void MenuSignIn() {
 
             // Si l'utilisateur échoue 3 fois
             if (password_Incorrect_Conteur == 3) {
-                printf("Vous avez atteint le nombre maximum de tentatives. Veuillez attendre 30 secondes.\n");
-                sleep(30); // Attente de 30 secondes
+                printf("Vous avez atteint le nombre maximum de tentatives. Veuillez attendre 10 secondes.\n");
+                sleep(10); // Attente de 10 secondes // 1800 sec = 30min
                 password_Incorrect_Conteur = 0; // Réinitialise le compteur d'erreurs
             }
         }
@@ -363,7 +361,11 @@ void GestionUtilisateurs() {
       
         // Demande si l'utilisateur souhaite supprimer un autre utilisateur
         printf("Voulez-vous supprimer un autre utilisateur ? (1 pour OUI, 0 pour NON) : ");
-        scanf("%d", &delete_Another);
+        // scanf("%d", &delete_Another);
+        if (scanf(" %d", &delete_Another) != 1){
+            printf("Erreur: Veuillez entrer une option valide.\n");
+            while (getchar() != '\n'); 
+        }
 
         printf("\n\n");
 
@@ -421,7 +423,6 @@ void afficherLesReclamations() {
     }
 }
 
-
 void GestionReclamations() {
     int choix_Supprimer;  // Variable pour stocker le numéro de la réclamation à supprimer
     char annuler_choix[10];  // Buffer pour la saisie utilisateur
@@ -429,41 +430,51 @@ void GestionReclamations() {
     // Vérifie s'il y a des réclamations à gérer
     if (reclamations_Conteur == 0) {
         printf("Aucune reclamation pour le Moment.\n\n");  // Aucune réclamation à afficher
-    } else {
+        return;  // Retourne au menu principal
+    }
+
+    while (1) {  // Boucle principale pour la gestion des réclamations
         afficherLesReclamations();  // Affiche toutes les réclamations
         
-        getchar();  // Nettoie le buffer d'entrée
-        while (1) {  // Boucle infinie jusqu'à ce qu'une action soit validée ou annulée
-            printf("Entrez le numero de la reclamation que vous voulez supprimer ou entrez '.' pour annuler l'action : ");
-            fgets(annuler_choix, sizeof(annuler_choix), stdin);  // Lit l'entrée utilisateur
+        printf("Entrez le numero de la reclamation que vous voulez supprimer ou entrez '.' pour retourner au menu principal : ");
+        fgets(annuler_choix, sizeof(annuler_choix), stdin);  // Lit l'entrée utilisateur
 
-            // Vérifie si l'utilisateur veut annuler l'action
-            if (annuler_choix[0] == '.' && annuler_choix[1] == '\n') {
-                printf("Action annulee.\n");  // Informe l'utilisateur que l'action est annulée
-                return;  // Quitte la fonction
-            }
+        // Vérifie si l'utilisateur veut retourner au menu principal
+        if (annuler_choix[0] == '.' && annuler_choix[1] == '\n') {
+            printf("Retour au menu principal.\n");
+            return;  // Retourne au menu principal
+        }
 
-            // Essaye de convertir l'entrée en entier
-            if (sscanf(annuler_choix, "%d", &choix_Supprimer) == 1) {
+        // Essaye de convertir l'entrée en entier
+        if (sscanf(annuler_choix, "%d", &choix_Supprimer) == 1) {
+            // Vérifie si le numéro de la réclamation est valide
+            if (choix_Supprimer > 0 && choix_Supprimer <= reclamations_Conteur) {
+                // Supprime la réclamation choisie en décalant les suivantes
+                for (int i = choix_Supprimer - 1; i < reclamations_Conteur - 1; i++) {
+                    reclamations[i] = reclamations[i + 1];  // Décalage des réclamations
+                }
+                reclamations_Conteur--;  // Décrémente le compteur de réclamations
+                printf("Reclamation %d supprimee avec succes.\n", choix_Supprimer);  // Confirmation de la suppression
                 
-                // Vérifie si le numéro de la réclamation est valide
-                if (choix_Supprimer > 0 && choix_Supprimer <= reclamations_Conteur) {
-                    
-                    // Supprime la réclamation choisie en décalant les suivantes
-                    for (int i = choix_Supprimer - 1; i < reclamations_Conteur - 1; i++) {
-                        reclamations[i] = reclamations[i + 1];  // Décalage des réclamations
-                    }
-                    reclamations_Conteur--;  // Décrémente le compteur de réclamations
-                    printf("Reclamation %d supprimee avec succes.\n", choix_Supprimer);  // Confirmation de la suppression
-                    break;  // Sort de la boucle
-                } else {
-                    // Informe l'utilisateur que le numéro de réclamation est invalide
-                    printf("Numero de reclamation invalide. Veuillez reessayer.\n");
+                // Demande à l'utilisateur s'il veut continuer ou retourner au menu principal
+                printf("Voulez-vous continuer la gestion des reclamations ? (O/N) : ");
+                char continuer;
+                // scanf(" %c", &continuer);
+                // getchar();  // Pour consommer le caractère de nouvelle ligne
+                if (scanf(" %c", &continuer) != 1){
+                    printf("Erreur: Veuillez entrer une option valide.\n");
+                    while (getchar() != '\n'); 
+                }
+                if (continuer != 'O' && continuer != 'o') {
+                    return;  // Retourne au menu principal si l'utilisateur ne veut pas continuer
                 }
             } else {
-                // Informe l'utilisateur que l'entrée est invalide
-                printf("Entree invalide. Veuillez entrer un numero de reclamation valide ou '.' pour annuler.\n");
+                // Informe l'utilisateur que le numéro de réclamation est invalide
+                printf("Numero de reclamation invalide. Veuillez reessayer.\n");
             }
+        } else {
+            // Informe l'utilisateur que l'entrée est invalide
+            printf("Entree invalide. Veuillez entrer un numero de reclamation valide ou '.' pour retourner au menu principal.\n");
         }
     }
 }
@@ -504,7 +515,11 @@ void AttribuerRoles() {
     
     // Propose les choix de rôle à l'utilisateur
     printf("Choisir le nouveau role : 1 - Administrateur, 2 - Agent, 3 - Client\n");
-    scanf(" %d", &Choix_New_Role);  // Lecture du choix de rôle
+    // scanf(" %d", &Choix_New_Role);  // Lecture du choix de rôle
+    if (scanf(" %d", &Choix_New_Role) != 1){
+            printf("Erreur: Veuillez entrer une option valide.\n");
+            while (getchar() != '\n'); 
+    }
 
     // Boucle pour trouver l'utilisateur correspondant
     for (int i = 0; i < user_Conteur; i++) {
@@ -599,10 +614,11 @@ void GenererRapportQuotidien(float Ratio_Resolution, double moyenne) {
                 resolues_found = 1; // Marque que nous avons trouvé des réclamations résolues
             }
             // Écrit les détails de la réclamation résolue
-            fprintf(file, "%d - ID: %s, Catégorie: %s, Motif: %s, Description: %s, Date de Resolution: %s\n", i+1,
+            fprintf(file, "%d - ID: %s, Catégorie: %s, Motif: %s, Description: %s, Date de Resolution: %s, Note : %s\n", i+1,
                     reclamations[i].id, reclamations[i].categorie, 
                     reclamations[i].motif, reclamations[i].description,
-                    reclamations[i].date_Traitement_resolu);
+                    reclamations[i].date_Traitement_resolu,
+                    reclamations[i].note);
         }
     }
 
@@ -704,7 +720,7 @@ void TraiterReclamation() {
         // Affiche toutes les réclamations
         printf("Liste de toutes les reclamations :\n");
         for (int i = 0; i < reclamations_Conteur; i++) {
-            printf("%d. ID: %d, Status: %s, Description: %s, Note de Traitement : %s\n", 
+            printf("%d. ID: %s, Status: %s, Description: %s, Note de Traitement : %s\n", 
                    i + 1, reclamations[i].id, reclamations[i].status, reclamations[i].description,
                    (strlen(reclamations[i].note) == 0 ? "-----" : reclamations[i].note));
         }
@@ -714,14 +730,14 @@ void TraiterReclamation() {
         int j = 1;
         for (int i = 0; i < reclamations_Conteur; i++) {
             if (strcmp(reclamations[i].status, "En Cours") == 0) {
-                printf("%d. ID: %d, Description: %s\n", 
+                printf("%d. ID: %s, Description: %s\n", 
                        j++, reclamations[i].id, reclamations[i].description);
             }
         }
 
         // Demande à l'utilisateur d'entrer le numéro de la réclamation à traiter
         printf("\nEntrez le numero de la reclamation que vous voulez traiter (0 pour quitter) : ");
-        if (scanf("%d", &choix_reclamation) != 1) {
+        if (scanf(" %d", &choix_reclamation) != 1) {
             printf("Entrée invalide. Veuillez entrer un nombre.\n");
             while (getchar() != '\n'); 
             continue;
@@ -798,7 +814,11 @@ void TraiterReclamation() {
 
         // Demande si l'utilisateur veut traiter une autre réclamation
         printf("\nVoulez-vous traiter une autre reclamation ? (o/n) : ");
-        scanf("%s", continuer);
+        // scanf("%s", continuer);
+        if (scanf(" %s", continuer) != 1){
+            printf("Erreur: Veuillez entrer une option valide.\n");
+            while (getchar() != '\n'); 
+        }
         if (strcmp(continuer, "n") == 0) {
             break; // Sort de la boucle
         }
@@ -822,7 +842,12 @@ void AjouterReclamation() {
     do {
         // Afficher les options de catégories pour la réclamation
         printf("Entrez la categorie de votre Reclamation 1 - Financier , 2 - Technique, 3 - Service 4 - Autre \n");
-        scanf(" %d", &categorie_choix);
+        // scanf(" %d", &categorie_choix);
+
+        if (scanf(" %d", &categorie_choix) != 1){
+            printf("Erreur: Veuillez entrer une option valide.\n");
+            while (getchar() != '\n'); 
+        }
 
         // Déterminer la catégorie choisie
         switch (categorie_choix) {
@@ -959,7 +984,7 @@ int ReclamationPrecisDuClient(int valid_claims[]) {
     
     // Si aucune réclamation valide n'est trouvée pour l'utilisateur
     if (Index_reclamation_utilisateur == 0) {
-        printf("Aucune reclamation trouvee pour cet utilisateur.\n");
+        printf("Aucune reclamation peut etre modifier pour cet utilisateur.\n");
     } 
     
     // Retourne le nombre de réclamations valides trouvées
@@ -985,7 +1010,11 @@ void ConsulterReclamation() {
     if (num_valid_claims > 0) {
         // Demande à l'utilisateur de choisir une réclamation à modifier ou supprimer
         printf("Entrez le numero de la reclamation que vous souhaitez modifier ou supprimer (1 - %d) ou 0 pour revenir : ", num_valid_claims);
-        scanf("%d", &choix_Consultation_reclamation);
+        // scanf("%d", &choix_Consultation_reclamation);
+        if (scanf(" %d", &choix_Consultation_reclamation) != 1){
+            printf("Erreur: Veuillez entrer une option valide.\n");
+            while (getchar() != '\n'); 
+        }
         
         // Vérifie si le choix est valide
         if (choix_Consultation_reclamation > 0 && choix_Consultation_reclamation <= num_valid_claims) {
@@ -1029,7 +1058,11 @@ void ConsulterReclamation() {
                 case 2: // Supprimer la réclamation
                     printf("Etes-vous sur de vouloir supprimer cette reclamation ? (O/N) : ");
                     char confirm; // Variable pour confirmer la suppression
-                    scanf(" %c", &confirm);
+                    // scanf(" %c", &confirm);
+                    if (scanf(" %c", &confirm) != 1){
+                        printf("Erreur: Veuillez entrer une option valide.\n");
+                        while (getchar() != '\n'); 
+                    }
                     if (confirm == 'O' || confirm == 'o') {
                         // Décale les réclamations pour supprimer l'élément choisi
                         for (int i = claim_index; i < reclamations_Conteur - 1; i++) {
@@ -1138,14 +1171,19 @@ void RechercheUneReclamations() {
         printf("5 - Recherche par Date\n");
         printf("6 - Quitter\n");
 
-        scanf(" %d", &choix_recherche);
-        getchar();
+        // scanf(" %d", &choix_recherche);
+        // getchar();
+        if (scanf(" %d", &choix_recherche) != 1){
+            printf("Erreur: Veuillez entrer une option valide.\n");
+            while (getchar() != '\n'); 
+        }
 
         // Vérifie si le choix est valide
         if (choix_recherche < 1 || choix_recherche > 6) {
             printf("Veuillez choisir un choix valide entre 1 - 6.\n");
             continue;
         }
+        
 
         int found = 0;  // Indicateur si une réclamation a été trouvée
 
@@ -1209,6 +1247,7 @@ void RechercheUneReclamations() {
                 printf("Entrez la Date de la Reclamation (format YYYY-MM-DD): ");
                 scanf(" %s", recherche_Date);
                 getchar();
+                
                 for (int i = 0; i < reclamations_Conteur; i++) {
                     char date_part[11];
                     strncpy(date_part, reclamations[i].date, 10);
@@ -1229,8 +1268,12 @@ void RechercheUneReclamations() {
         if (found) {
             char choix;
             printf("Voulez-vous chercher a nouveau ? (o/n) : ");
-            scanf(" %c", &choix);
-            getchar(); 
+            // scanf(" %c", &choix);
+            // getchar(); 
+            if (scanf(" %c", &choix) != 1){
+            printf("Erreur: Veuillez entrer une option valide.\n");
+            while (getchar() != '\n'); 
+        }
 
             if (choix == 'n' || choix == 'N') {
                 printf("Retour au menu principal.\n");
@@ -1246,7 +1289,7 @@ void RechercheUneReclamations() {
 
 void MenuAdministrateur(){
     int choix_Menu_Administrateur = 0; // Variable pour stocker le choix de l'administrateur
-    
+
     printf("Bienvenue dans votre espace Administrateur.\n");
 
     do{
@@ -1256,42 +1299,47 @@ void MenuAdministrateur(){
         printf("5 - Generation des Statistiques. \t  6 - Afficher les reclamations ordonnees par priorite\n");
         printf("7 - Recherche d'une Reclamation. \n8 - Quittez\n");
         printf("Quelle est votre choix : ");
-        scanf(" %d",&choix_Menu_Administrateur);
+        // scanf(" %d",&choix_Menu_Administrateur);
+        if (scanf(" %d", &choix_Menu_Administrateur) != 1){
+            printf("Erreur: Veuillez entrer une option valide.\n");
+            while (getchar() != '\n'); 
+        }
+
         printf("\n");
+            
+            // Vérifie si le choix est valide
+            if(choix_Menu_Administrateur < 1 || choix_Menu_Administrateur > 8 ){
+                printf("Veuillez choisir un choix valide entre 1 - 8.\n");
+                continue;
+            }
 
-        // Vérifie si le choix est valide
-        if(choix_Menu_Administrateur < 1 || choix_Menu_Administrateur > 8 ){
-            printf("Veuillez choisir un choix valide entre 1 - 8.\n");
-            continue;
-        }
-
-        // Exécution de l'action correspondant au choix de l'utilisateur
-        switch (choix_Menu_Administrateur) {
-            case 1:
-                GestionUtilisateurs(); // Gérer les utilisateurs
-                break;
-            case 2:
-                GestionReclamations(); // Gérer les réclamations
-                break;
-            case 3:
-                AttribuerRoles(); // Attribuer des rôles aux utilisateurs
-                break;
-            case 4:
-                TraiterReclamation(); // Traiter les réclamations
-                break;
-            case 5:
-                GenerationStatistiques(); // Générer des statistiques
-                break;
-            case 6:
-                OrdreParPriorite(); // Afficher les réclamations par priorité
-                break;
-            case 7:
-                RechercheUneReclamations(); // Rechercher une réclamation
-                break;
-            default:
-                printf("Au revoir.\n"); // Quitter le programme
-                break;
-        }
+            // Exécution de l'action correspondant au choix de l'utilisateur
+            switch (choix_Menu_Administrateur) {
+                case 1:
+                    GestionUtilisateurs(); // Gérer les utilisateurs
+                    break;
+                case 2:
+                    GestionReclamations(); // Gérer les réclamations
+                    break;
+                case 3:
+                    AttribuerRoles(); // Attribuer des rôles aux utilisateurs
+                    break;
+                case 4:
+                    TraiterReclamation(); // Traiter les réclamations
+                    break;
+                case 5:
+                    GenerationStatistiques(); // Générer des statistiques
+                    break;
+                case 6:
+                    OrdreParPriorite(); // Afficher les réclamations par priorité
+                    break;
+                case 7:
+                    RechercheUneReclamations(); // Rechercher une réclamation
+                    break;
+                default:
+                    printf("Au revoir.\n"); // Quitter le programme
+                    break;
+            }
 
     } while (choix_Menu_Administrateur != 8); // Continue tant que l'utilisateur ne choisit pas de quitter
 }
@@ -1304,27 +1352,46 @@ void MenuAgent(){
     do {
         // Affichage du menu des options
         printf("=========== Menu ===========\n");
-        printf("1 - Gerer les reclamations \t 2 - Traiter les reclamations \t 3 - Recherche d'une Reclamation.\n");
-        printf("4 - Quittez.\n");
+        printf("1 - Gerer les reclamations\n");
+        printf("2 - Traiter les reclamations\n");
+        printf("3 - Recherche d'une Reclamation\n");
+        printf("4 - Quittez\n");
         printf("Quelle est votre choix : ");
-        scanf(" %d",&choix_Menu_Agent);
-        getchar(); // Pour consommer le caractère de nouvelle ligne
+        // scanf("%d", &choix_Menu_Agent);
+        // getchar(); // Pour consommer le caractère de nouvelle ligne
+
+        if (scanf(" %d", &choix_Menu_Agent) != 1){
+            printf("Erreur: Veuillez entrer une option valide.\n");
+            while (getchar() != '\n'); 
+        }
 
         // Vérifie si le choix est valide
         if(choix_Menu_Agent < 1 || choix_Menu_Agent > 4){
             printf("Veuillez choisir un choix valide entre 1 - 4.\n");
+            continue;
         }
-    } while (choix_Menu_Agent < 1 || choix_Menu_Agent > 4);
 
-    // Exécution de l'action correspondant au choix de l'agent
-    if(choix_Menu_Agent == 1){
-        GestionReclamations(); // Gérer les réclamations
-    } else if(choix_Menu_Agent == 2){
-        TraiterReclamation(); // Traiter les réclamations
-    } else if(choix_Menu_Agent == 3){
-        RechercheUneReclamations(); // Rechercher une réclamation
-    }
+        // Exécution de l'action correspondant au choix de l'agent
+        switch(choix_Menu_Agent) {
+            case 1:
+                GestionReclamations(); // Gérer les réclamations
+                break;
+            case 2:
+                TraiterReclamation(); // Traiter les réclamations
+                break;
+            case 3:
+                RechercheUneReclamations(); // Rechercher une réclamation
+                break;
+            case 4:
+                printf("Au revoir.\n");
+                break;
+            default:
+                printf("Choix invalide.\n");
+        }
+
+    } while (choix_Menu_Agent != 4); // Continue tant que l'agent ne choisit pas de quitter
 }
+
 
 
 void MenuUtilisateur() {
@@ -1336,8 +1403,13 @@ void MenuUtilisateur() {
         printf("=========== Menu ===========\n");
         printf("1 - Ajouter une reclamation \t 2 - Consulter tes reclamations \t 3 - Quittez \n");
         printf("Quelle est votre choix : ");
-        scanf(" %d", &choix_Menu_utilisateur);
-        getchar(); // Pour consommer le caractère de nouvelle ligne
+        // scanf(" %d", &choix_Menu_utilisateur);
+        // getchar(); // Pour consommer le caractère de nouvelle ligne
+
+        if (scanf(" %d", &choix_Menu_utilisateur) != 1){
+            printf("Erreur: Veuillez entrer une option valide.\n");
+            while (getchar() != '\n'); 
+        }
 
         // Vérifie si le choix est valide
         if (choix_Menu_utilisateur < 1 || choix_Menu_utilisateur > 3) {
@@ -1390,7 +1462,11 @@ void MenuPrincipal() {
         }
 
         printf("Quelle est votre choix : ");
-        scanf(" %d", &choix_Menu_Pricipale); // Lit le choix de l'utilisateur
+       
+        if (scanf(" %d", &choix_Menu_Pricipale) != 1){
+            printf("Erreur: Veuillez entrer une option valide.\n");
+            while (getchar() != '\n'); 
+        }
 
         // Vérifie la validité du choix en fonction de l'état de connexion
         if (!isSignedIn && choix_Menu_Pricipale != 1 && choix_Menu_Pricipale != 2) {
