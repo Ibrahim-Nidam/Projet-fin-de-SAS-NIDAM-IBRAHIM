@@ -30,7 +30,7 @@
 1. Se connecter en tant qu'invite :
    - Tester la fonction de consultation
 
-2. Se connecter en tant qu'utilisateur (hamid) :
+2. Se connecter en tant qu'utilisateur **OMAR** :
    - Creer 5 reclamations (dont 3 principales pour le test) :
 
      a) Reclamation 1 (priorite basse) : [Details a definir] 
@@ -64,10 +64,6 @@
       **prioriter : moyen**
      
 
-
-   - Tester la suppression de la reclamation 1
-   - Tester la modification de la Reclamation 2
-
 ## V. Traitement des Reclamations par l'Agent et l'Administrateur
 
 1. **Se connecter en tant qu'agent (ibra)** :
@@ -76,15 +72,15 @@
      a. Resoudre la Reclamation 2 avec une note
      b. Rejeter la Reclamation 3 sans commentaire
 
-2. **Se connecter en tant qu'utilisateur (omar)** :
+2. **Se connecter en tant qu'utilisateur (hamid)** :
    - Creer 2 reclamations supplementaires :
      a) Reclamation 6 :
      ```
      Categorie : Service
      Motif     : Un probleme critique.
      Description : Peut etre resolu rapidement.
-     **prioriter : Mix - high**
      ```
+     **prioriter : Mix - high**
 
      b) Reclamation 7 :
      ```

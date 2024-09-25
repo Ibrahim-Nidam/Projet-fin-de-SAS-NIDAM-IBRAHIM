@@ -459,8 +459,7 @@ void GestionReclamations() {
                 // Demande à l'utilisateur s'il veut continuer ou retourner au menu principal
                 printf("Voulez-vous continuer la gestion des reclamations ? (O/N) : ");
                 char continuer;
-                // scanf(" %c", &continuer);
-                // getchar();  // Pour consommer le caractère de nouvelle ligne
+                
                 if (scanf(" %c", &continuer) != 1){
                     printf("Erreur: Veuillez entrer une option valide.\n");
                     while (getchar() != '\n'); 
@@ -1462,7 +1461,7 @@ void MenuPrincipal() {
         }
 
         printf("Quelle est votre choix : ");
-       
+    //    scanf(" %d", &choix_Menu_Pricipale);
         if (scanf(" %d", &choix_Menu_Pricipale) != 1){
             printf("Erreur: Veuillez entrer une option valide.\n");
             while (getchar() != '\n'); 
